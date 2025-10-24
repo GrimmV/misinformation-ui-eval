@@ -1,17 +1,10 @@
 <script lang="ts">
-	import { MainIntro, MainExperiment, MainCompletion, type ExperimentResults } from '$lib';
+	import { MainIntro, PrepTimeline, MainCompletion, PostAnalysisContainer } from '$lib';
 
 	let step = $state(1);
-	let experimentResults: ExperimentResults | undefined = $state(undefined);
 
 	function handleStepComplete() {
 		step++;
-	}
-
-	function handleExperimentComplete(results: ExperimentResults) {
-		console.log('Experiment completed!', results);
-		experimentResults = results;
-		handleStepComplete();
 	}
 
 	function handleStudyComplete() {
@@ -25,11 +18,12 @@
 	{#if step === 1}
 		<MainIntro onComplete={handleStepComplete} />
 	{:else if step === 2}
-		<MainExperiment onComplete={handleExperimentComplete} />
+		<PrepTimeline onComplete={handleStepComplete} />
 	{:else if step === 3}
+		<PostAnalysisContainer onComplete={handleStepComplete} />
+	{:else if step === 4}
 		<MainCompletion 
-			onComplete={handleStudyComplete} 
-			{experimentResults} 
+			onComplete={handleStudyComplete}
 		/>
 	{/if}
 </div>

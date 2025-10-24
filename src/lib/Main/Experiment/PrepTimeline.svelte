@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { samplePosts, type SocialMediaPostData } from '$lib';
+	import { samplePosts } from '$lib';
 	import SocialMediaPost from './SocialMediaPost.svelte';
 	import { toast } from 'svelte-sonner';
 
 	interface Props {
-		posts?: SocialMediaPostData[];
+		onComplete: () => void;
 	}
 
-	let { posts = samplePosts }: Props = $props();
+	let { onComplete }: Props = $props();
 	
 	// State for selected posts
 	let selectedPosts = $state<Set<number>>(new Set());
@@ -31,7 +31,7 @@
 	function handleContinue() {
 		if (selectedPosts.size === 5) {
 			console.log('Selected posts:', Array.from(selectedPosts));
-			// TODO: Implement navigation to next step
+			onComplete();
 		}
 	}
 </script>
@@ -61,7 +61,7 @@
             Continue
         </button>
     </div>
-	{#each posts as post (post.id)}
+	{#each samplePosts as post (post.id)}
 		<div 
 			class="relative cursor-pointer transition-all duration-200 hover:shadow-md {selectedPosts.has(post.id) ? 'ring-2 ring-blue-500 bg-blue-50' : ''}"
 			role="button"

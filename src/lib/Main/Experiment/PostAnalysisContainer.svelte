@@ -5,10 +5,11 @@
 	import type { EvaluationData } from '$lib';
     import type { VisualizationData } from '$lib';
 	interface Props {
+        onComplete: () => void;
 		postIds?: number[];
 	}
 
-	let { postIds = [1, 2, 3, 4, 5] }: Props = $props();
+	let { postIds = [1, 2, 3, 4, 5], onComplete }: Props = $props();
 
 	// State
 	let selectedPostId = $state<number | null>(postIds[0]);
