@@ -2,8 +2,14 @@
 	import { MainIntro, PrepTimeline, MainCompletion, PostAnalysisContainer } from '$lib';
 
 	let step = $state(1);
+	let postIds = $state<number[]>([]);
 
 	function handleStepComplete() {
+		step++;
+	}
+
+	function handlePrepComplete(selectedPostIds: number[]) {
+		postIds = selectedPostIds;
 		step++;
 	}
 
@@ -18,9 +24,9 @@
 	{#if step === 1}
 		<MainIntro onComplete={handleStepComplete} />
 	{:else if step === 2}
-		<PrepTimeline onComplete={handleStepComplete} />
+		<PrepTimeline onComplete={(postIds) => handlePrepComplete(postIds)} />
 	{:else if step === 3}
-		<PostAnalysisContainer onComplete={handleStepComplete} />
+		<PostAnalysisContainer {postIds} onComplete={handleStepComplete} />
 	{:else if step === 4}
 		<MainCompletion 
 			onComplete={handleStudyComplete}
