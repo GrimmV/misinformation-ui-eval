@@ -1,9 +1,11 @@
 <script lang="ts">
 	import QuizQuestion from './QuizQuestion.svelte';
-	import { quizQuestions } from '$lib/assets/quizData';
+	import type { QuizQuestion as QuizQuestionType } from '$lib/assets/quizData';
 
 	interface Props {
 		onQuizComplete?: (results: QuizResults) => void;
+		quizQuestions: QuizQuestionType[];
+		description: string;
 	}
 
 	export interface QuizResults {
@@ -23,7 +25,9 @@
 	}
 
 	let { 
-		onQuizComplete
+		onQuizComplete,
+		quizQuestions,
+		description
 	}: Props = $props();
 
 	let currentQuestionIndex = $state(0);
@@ -60,13 +64,6 @@
 		}
 	}
 
-	function previousQuestion() {
-		if (currentQuestionIndex > 0) {
-			currentQuestionIndex--;
-			questionStartTime = Date.now();
-		}
-	}
-
 	function completeQuiz() {
 		isQuizComplete = true;
 		const results: QuizResults = {
@@ -85,7 +82,7 @@
 	<div class="text-center mb-12">
 		<h1 class="text-5xl font-bold text-gray-900 mb-6">Preparation</h1>
 		<p class="text-xl text-gray-600 max-w-3xl mx-auto">
-			Learn the semantic features of the machine learning model.
+			{description}
 		</p>
 	</div>
 	{#if !isQuizComplete}
@@ -111,13 +108,11 @@
 		<QuizQuestion
 			question={currentQuestion.question}
 			explanation={currentQuestion.explanation || ''}
-			questionPos={currentQuestionIndex}
 			options={currentQuestion.options}
 			correctAnswer={currentQuestion.correctAnswer}
 			isAnswered={isAnswered}
 			onCorrectAnswer={() => handleCorrectAnswer()}
 			onNextQuestion={() => nextQuestion()}
-			onPreviousQuestion={() => previousQuestion()}
 		/>
 	{/if}
 </div>

@@ -69,15 +69,14 @@
 					<!-- Bar Value -->
 					{#if count > 0 && barHeight > 20}
 						<div class="absolute inset-0 flex items-center justify-center text-white text-xs font-medium">
-							{count}
+							{formatNumber((count / totalCount()) * 100)}%
 						</div>
 					{/if}
 				</div>
 				
 				<!-- Count and Percentage -->
 				<div class="w-12 text-right">
-					<div class="text-xs font-medium text-gray-700">{count}</div>
-					<div class="text-xs text-gray-500">{formatNumber((count / totalCount()) * 100)}%</div>
+					<div class="text-xs font-medium text-gray-700">{formatNumber((count / totalCount()) * 100)}%</div>
 				</div>
 			</div>
 		{/each}

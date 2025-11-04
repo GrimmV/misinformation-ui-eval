@@ -4,24 +4,20 @@
   interface Props {
     question: string;
     explanation: string;
-    questionPos: number;
     options: string[];
     correctAnswer: number; // Index of the correct answer (0-based)
     isAnswered: boolean; // Whether the question has been answered
     onCorrectAnswer: () => void; // Callback for when correct answer is selected
     onNextQuestion?: () => void; // Callback for when next question is selected
-    onPreviousQuestion?: () => void; // Callback for when previous question is selected
   }
 
   let {
     question,
     explanation,
-    questionPos,
     options,
     correctAnswer,
     onCorrectAnswer,
     onNextQuestion,
-    onPreviousQuestion,
     isAnswered,
   }: Props = $props();
 
@@ -151,16 +147,6 @@
   {/if}
 
   <div class="flex justify-around">
-    {#if questionPos > 0}
-      <div class="flex justify-center">
-        <button
-          onclick={onPreviousQuestion}
-          class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
-        >
-          Previous
-        </button>
-      </div>
-    {/if}
     {#if isEvaluated}
       {#if !isCorrectAnswer}
         <div class="flex justify-center">

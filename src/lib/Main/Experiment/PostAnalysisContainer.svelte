@@ -3,13 +3,15 @@
 	import { getSamplePosts } from '$lib';
 	import type { SocialMediaPostData } from '$lib';
 	import { onMount } from 'svelte';
+	import { CircleCheck, Flag } from 'lucide-svelte';
 
 	interface Props {
 		postIds: number[];
         onComplete: () => void;
+		showAssistant: boolean;
 	}
 
-	let { postIds, onComplete }: Props = $props();
+	let { postIds, onComplete, showAssistant = false }: Props = $props();
 
 	console.log('postIds', postIds);
 
@@ -65,13 +67,45 @@
 		}
 	});
 
-	// Navigation function
+	// Decision / navigation state
+	let confirmOpen: 'misinfo' | 'not' | null = $state(null);
+
+	// Navigation function (disabled via UI; kept for clarity)
 	function selectPost(postId: number) {
 		selectedPostId = postId;
 	}
+
+	function getCurrentIndex() {
+		return selectedPostId ? postIds.findIndex((id) => id === selectedPostId) : -1;
+	}
+
+	function goToNextOrComplete() {
+		const currentIndex = getCurrentIndex();
+		if (currentIndex === -1) return;
+		const isLast = currentIndex === postIds.length - 1;
+		if (isLast) {
+			onComplete();
+		} else {
+			selectedPostId = postIds[currentIndex + 1];
+		}
+	}
+
+	function requestConfirm(kind: 'misinfo' | 'not') {
+		confirmOpen = kind;
+	}
+
+	function cancelConfirm() {
+		confirmOpen = null;
+	}
+
+	function confirmDecision() {
+		// In case we later store the decision, `confirmOpen` has which button was chosen
+		confirmOpen = null;
+		goToNextOrComplete();
+	}
 </script>
 
-<div class="mx-auto flex max-w-7xl flex-col items-center justify-center space-y-6 my-6">
+<div class="mx-auto flex max-w-7xl flex-col items-center justify-center mb-6">
 	{#if loading}
 		<!-- Loading State -->
 		<div class="rounded-lg border border-gray-200 bg-white p-12 text-center shadow-sm">
@@ -99,18 +133,56 @@
 		</div>
 	{:else}
 		<!-- Post Selection -->
-		<div class="flex flex-wrap gap-3">
+		<div class="flex flex-wrap gap-3 mb-4">
 			{#each postIds as postId}
-				<button
-					class="rounded-lg border bg-white px-4 py-2 transition-all duration-200 hover:cursor-pointer {selectedPostId ===
-					postId
-						? 'border-blue-500 bg-blue-50 text-blue-700'
-						: 'border-gray-200 text-gray-700 hover:border-gray-300'}"
-					onclick={() => selectPost(postId)}
+				<div
+					class="rounded-lg border bg-white px-4 py-2 transition-all duration-200 {selectedPostId === postId ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-200 text-gray-700'} disabled:opacity-60 disabled:cursor-not-allowed"
 				>
 					Post #{postId}
-				</button>
+				</div>
 			{/each}
+		</div>
+
+		<!-- Decision Buttons with Confirmation Popovers -->
+		<div class="flex flex-col sm:flex-row gap-3 mb-6 w-full max-w-3xl justify-center items-center">
+			<h2 class="text-lg font-semibold text-gray-900">Your choice:</h2>
+			<div>
+				<button
+					onclick={() => requestConfirm('not')}
+					class="w-full hover:cursor-pointer sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-5 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				>
+					<CircleCheck class="h-5 w-5 text-green-600 mr-2" />
+					The post is not misinformation
+				</button>
+				{#if confirmOpen === 'not'}
+					<div class="absolute z-20 mt-2 w-72 sm:w-80 rounded-md border border-gray-200 bg-white p-4 shadow-lg">
+						<p class="text-sm text-gray-800 mb-3">Confirm your choice: I think that this post is <span class="font-semibold">not misinformation</span>?</p>
+						<div class="flex justify-end gap-2">
+							<button class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick={cancelConfirm}>Cancel</button>
+							<button class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" onclick={confirmDecision}>Confirm</button>
+						</div>
+					</div>
+				{/if}
+			</div>
+
+			<div>
+				<button
+					onclick={() => requestConfirm('misinfo')}
+					class="w-full hover:cursor-pointer sm:w-auto inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-5 py-3 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+				>
+					<Flag class="h-5 w-5 text-red-600 mr-2" />
+					The post is misinformation
+				</button>
+				{#if confirmOpen === 'misinfo'}
+					<div class="absolute z-20 mt-2 w-72 sm:w-80 rounded-md border border-gray-200 bg-white p-4 shadow-lg">
+						<p class="text-sm text-gray-800 mb-3">Confirm your choice: I think that this post <span class="font-semibold">is misinformation</span>?</p>
+						<div class="flex justify-end gap-2">
+							<button class="rounded-md px-3 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick={cancelConfirm}>Cancel</button>
+							<button class="rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700" onclick={confirmDecision}>Confirm</button>
+						</div>
+					</div>
+				{/if}
+			</div>
 		</div>
 
 		<!-- Post Analysis Content -->
@@ -118,6 +190,7 @@
 			<PostAnalysis
 				post={selectedPost as SocialMediaPostData}
 				postId={selectedPostId}
+				showAssistant={showAssistant}
 			/>
 		{:else}
 			<div class="rounded-lg border border-gray-200 bg-white p-12 text-center shadow-sm">

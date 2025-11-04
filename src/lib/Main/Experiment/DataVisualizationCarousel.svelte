@@ -45,11 +45,11 @@
 	}
 </script>
 
-<div class="mx-auto mb-4 max-w-4xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+<div class="mx-auto mb-4 max-w-4xl rounded-lg bg-amber-50 p-6">
 	<!-- Header -->
 	<div class="mb-6 flex items-center justify-between">
 		<div>
-			<h2 class="text-xl font-semibold text-gray-900">Data Analysis Dashboard</h2>
+			<h2 class="text-xl font-semibold text-gray-900">Detailed Insights</h2>
 			<p class="text-sm text-gray-500">Interactive visualizations and insights</p>
 		</div>
 		<div class="flex items-center space-x-2 text-sm text-gray-500">
@@ -127,18 +127,5 @@
 				{/each}
 			</div>
 		{/if}
-	</div>
-
-	<!-- Navigation Info -->
-	<div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-		<div class="flex items-center space-x-4 text-xs text-gray-500">
-			<span>Use arrows to navigate</span>
-			{#if visualizations.length > 1}
-				<span>•</span>
-				<span>Click any chart to focus</span>
-				<span>•</span>
-				<span>Click dots to jump</span>
-			{/if}
-		</div>
 	</div>
 </div>

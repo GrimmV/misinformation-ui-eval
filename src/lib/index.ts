@@ -3,6 +3,7 @@ export { default as Navigation } from './Navigation.svelte';
 export { default as PreparationQuiz } from './Preparation/Quiz.svelte';
 export { default as PreparationInstructions } from './Preparation/Instructions.svelte';
 export { default as PreparationCompletion } from './Preparation/Completion.svelte';
+export { default as PreparationQuizIntro } from './Preparation/QuizIntro.svelte';
 export { default as MainIntro } from './Main/Intro.svelte';
 export { default as MainExperiment } from './Main/Experiment.svelte';
 export { default as MainCompletion } from './Main/Completion.svelte';

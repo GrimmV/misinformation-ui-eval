@@ -133,10 +133,10 @@
 				>
 					<div class="flex items-center space-x-2">
 						<ChartColumn class="h-5 w-5 text-blue-600" />
-						<h5 class="font-medium text-gray-900">Data Visualizations</h5>
+						<h5 class="font-medium text-gray-900">Explanations</h5>
 					</div>
 					<span class="text-sm font-medium text-blue-600">
-						{showVisualizations ? 'Hide' : 'Show'} Visualizations
+						{showVisualizations ? 'Hide' : 'Show'} Explanations
 					</span>
 				</button>
 				<!-- Data Visualizations -->
