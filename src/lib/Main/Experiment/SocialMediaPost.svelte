@@ -40,6 +40,10 @@
 					<div class="text-xs text-red-400 font-medium mt-1">
 						⚠️ Potential Misinformation
 					</div>
+				{:else}
+					<div class="text-xs text-green-400 font-medium mt-1">
+						✅ Trustworthy Post
+					</div>
 				{/if}
 			</div>
 		</div>

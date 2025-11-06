@@ -87,6 +87,19 @@ export async function fetchEvaluationData(postIds: number[]): Promise<Evaluation
 	});
 }
 
+// OpenAI API
+export interface OpenAIResponse {
+	response: string;
+}
+
+export async function fetchOpenAI(prompt: string): Promise<OpenAIResponse> {
+	const url = buildApiUrl(API_ENDPOINTS.openai);
+	return apiRequest<OpenAIResponse>(url, {
+		method: 'POST',
+		body: JSON.stringify({ prompt: prompt }),
+	});
+}
+
 // Cache for storing fetched data
 class DataCache {
 	private postsCache: SocialMediaPost[] | null = null;

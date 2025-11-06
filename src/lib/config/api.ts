@@ -7,4 +7,5 @@ export const API_CONFIG = {
 export const API_ENDPOINTS = {
 	posts: '/api/v1/posts',
 	evaluationData: '/api/v1/evaluation_data',
+	openai: '/api/v1/chat',
 } as const;

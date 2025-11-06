@@ -12,6 +12,7 @@
 	import DataVisualizationCarousel from './DataVisualizationCarousel.svelte';
 	import type { EvaluationData } from '$lib';
 	import type { VisualizationData } from '$lib';
+	import ChatButton from '$lib/Chat/ChatButton.svelte';
 	
 	interface Props {
 		modelPrediction: true | false;
@@ -123,6 +124,19 @@
 				<p class="text-sm leading-relaxed text-gray-700">
 					{showDetailedAnalysis ? evaluationData.detailedAnalysis : evaluationData.rationale}
 				</p>
+				<div class="flex justify-end">
+					<ChatButton
+						context={JSON.stringify({
+							rationale: evaluationData.rationale,
+							detailedAnalysis: evaluationData.detailedAnalysis,
+							explanations: evaluationData.visualizations.visualizations.map(visualization => {
+								return {
+									title: visualization.title,
+									description: visualization.description
+								}
+						})})}
+					/>
+				</div>
 			</div>
 		</div>
 		{#if evaluationData?.visualizations?.visualizations?.length > 0}

@@ -39,7 +39,7 @@
 
   const quizIntroItems = [
     {
-      description: "You will be presented with posts that are flagged by the platform if they are deemed to be misinformation. Although it might be helpful to provide such automized flagging, it can also be wrong and thus misleading.",
+      description: "You will be presented with posts that are flagged by the platform if they are deemed to be misinformation.",
       imageSrc: PostExampleImage,
       alt: 'Post Example',
       width: 200,
@@ -51,7 +51,7 @@
       width: 200,
     },
     {
-      description: 'Given the situation above, it is the burden of the user to assess the flag. In this experiment, we provide an assistant that is independent of the social media platforms flagging and will help you to build trust or distrust in the flag.',
+      description: 'Although it might be helpful to provide such automized flagging, it can also be wrong and thus misleading. It is the burden of the user to assess the flag. In this experiment, we provide an assistant that will help you to build trust or distrust in the flag.',
       imageSrc: EvaluationAssistantImage,
       alt: 'Evaluation Assistant',
       width: 200,

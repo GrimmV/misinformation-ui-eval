@@ -100,6 +100,7 @@
 								<DataVisualization
 									title={visualization.title}
 									description={visualization.description}
+									extended_description={visualization.extended_description}
 									data={visualization.data}
 								/>
 							</button>

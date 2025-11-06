@@ -7,14 +7,16 @@
 	import GlobalFeatureImportance from './GlobalFeatureImportance.svelte';
 	import PartialDependencePlot from './PartialDependencePlot.svelte';
 	import Heatmap from './Heatmap.svelte';
+	import ChatButton from '$lib/Chat/ChatButton.svelte';
 
 	interface Props {
 		title: string;
 		description: string;
+		extended_description: string;
 		data: any;
 	}
 
-	let { title, description, data }: Props = $props();
+	let { title, description, extended_description, data }: Props = $props();
 
 	// hover/focus popover state
 	let open = $state(false);
@@ -60,7 +62,7 @@
 
 	// Move an element to document.body to avoid clipping by parent overflow/transform
 	function portal(node: HTMLElement) {
-		const originalParent = node.parentNode as (Node | null);
+		const originalParent = node.parentNode as Node | null;
 		const placeholder = document.createComment('portal-placeholder');
 		if (originalParent) {
 			originalParent.insertBefore(placeholder, node);
@@ -81,9 +83,9 @@
 
 <svelte:window onscroll={handleWindowChange} onresize={handleWindowChange} />
 
-<div class="h-fit w-fit rounded-lg border border-gray-200 bg-white p-2 shadow-sm mt-4">
+<div class="mt-4 h-fit w-fit rounded-lg border border-gray-200 bg-white p-2 shadow-sm">
 	<!-- Header -->
-	<div class="flex items-center space-x-3 mb-2 justify-center">
+	<div class="mb-2 flex items-center justify-center space-x-3">
 		<div class="rounded-lg bg-purple-100 p-2">
 			<ChartColumn class="h-6 w-6 text-purple-600" />
 		</div>
@@ -95,14 +97,23 @@
 
 	<!-- Description -->
 	<div class="p-2">
-		<p class="text-sm leading-relaxed text-gray-700 text-justify">{description}</p>
-
+		<p class="text-justify text-sm leading-relaxed text-gray-700">{description}</p>
+		<div class="flex justify-end">
+			<ChatButton
+				context={
+					"This is the data the user is refering to: \n\n" +
+					"Title: " + title + "\n\n" +
+					"Description: " + description + "\n\n" +
+					"Extended description (not visible to the user): " + extended_description
+				}
+			/>
+		</div>
 		<!-- Hover to reveal visualization -->
 		<div class="mt-4 flex items-center justify-between">
 			<button
 				bind:this={btnEl}
 				type="button"
-				class="inline-flex items-center justify-center space-x-2 rounded-md border w-full border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+				class="inline-flex w-full items-center justify-center space-x-2 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
 				aria-controls={panelId}
 				aria-expanded={open}
 				aria-haspopup="dialog"
@@ -121,7 +132,10 @@
 						closePopover();
 					}
 				}}
-				onclick={(e) => { e.preventDefault(); toggleForTouch(); }}
+				onclick={(e) => {
+					e.preventDefault();
+					toggleForTouch();
+				}}
 				onkeydown={onKeydown}
 			>
 				<Eye class="h-4 w-4 text-gray-600" />
@@ -150,7 +164,6 @@
 		onmouseleave={closePopover}
 		onkeydown={onKeydown}
 	>
-
 		<!-- Content -->
 		<div class="p-3">
 			<div class="w-[420px] max-w-full">

@@ -1,6 +1,46 @@
 <script lang="ts">
-	import { MainIntro, PrepTimeline, MainCompletion, PostAnalysisContainer } from '$lib';
+	import {
+		MainIntro,
+		PrepTimeline,
+		MainCompletion,
+		PostAnalysisContainer,
+		SurveyQuestions
+	} from '$lib';
+	import AIAssistantImage from '$lib/assets/images/AIAssistant.png';
+	import AIDashboardImage from '$lib/assets/images/AIDashboard.png';
 	import { onMount } from 'svelte';
+
+	const AiDashboardItems = [
+		{
+			description: `
+				You have now chosen 6 posts that you will assess in the following steps.
+				The first three posts will be assessed with the help of the so-called "AI Dashboard".
+				You will be provided with different information about how the decision for the flag was made.
+				The information is presented with AI generated text and accompanied by data visualizations (not AI generated).
+
+				This is how it looks like:
+			`,
+			imageSrc: AIDashboardImage,
+			alt: 'AI Dashboard Example',
+			width: 200
+		}
+	];
+
+	const AiAssistantItems = [
+		{
+			description: `
+				You have finished the tasks with the AI Dashboard.
+				Now, the last three posts will be assessed with the help of the so-called "AI Assistant".
+				You will be provided with a trust assessment and further detailed information, including 
+				the information from the AI Dashboard.
+				
+				This is how it looks like:
+			`,
+			imageSrc: AIAssistantImage,
+			alt: 'AI Assistant Example',
+			width: 200
+		}
+	];
 
 	let step = $state(1);
 	let postIds = $state<number[]>([]);
@@ -64,16 +104,36 @@
 	{#if step === 1}
 		<PrepTimeline onComplete={(postIds) => handlePrepComplete(postIds)} />
 	{:else if step === 2}
-		<PostAnalysisContainer postIds={postIds.slice(0, 2)} onComplete={handleStepComplete} showAssistant={false} />
-	{:else if step === 3}
-		<PostAnalysisContainer postIds={postIds.slice(2, 4)} onComplete={handleStepComplete} showAssistant={true} />
-	{:else if step === 4}
-		<PostAnalysisContainer postIds={postIds.slice(4, 6)} onComplete={handleStepComplete} showAssistant={false} />
-	{:else if step === 5}
-		<PostAnalysisContainer postIds={postIds.slice(6, 8)} onComplete={handleStepComplete} showAssistant={true} />
-	{:else if step === 6}
-		<MainCompletion 
-			onComplete={handleStudyComplete}
+		<MainIntro
+			title="Main Experiment"
+			description="You will now assess the first three posts with the help of the AI Dashboard."
+			items={AiDashboardItems}
+			onComplete={handleStepComplete}
 		/>
+	{:else if step === 3}
+		<PostAnalysisContainer
+			postIds={postIds.slice(0, 3)}
+			onComplete={handleStepComplete}
+			showAssistant={false}
+		/>
+	{:else if step === 4}
+		<SurveyQuestions onComplete={handleStepComplete} />
+	{:else if step === 5}
+		<MainIntro
+			title="Main Experiment"
+			description="You will now assess the last three posts with the help of the AI Assistant."
+			items={AiAssistantItems}
+			onComplete={handleStepComplete}
+		/>
+	{:else if step === 6}
+		<PostAnalysisContainer
+			postIds={postIds.slice(3, 6)}
+			onComplete={handleStepComplete}
+			showAssistant={true}
+		/>
+	{:else if step === 7}
+		<SurveyQuestions onComplete={handleStepComplete} />
+	{:else if step === 8}
+		<MainCompletion onComplete={handleStudyComplete} />
 	{/if}
 </div>

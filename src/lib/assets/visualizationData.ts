@@ -1,6 +1,7 @@
 export interface VisualizationData {
 	title: string;
 	description: string;
+	extended_description: string;
 	data: object;
 }
 

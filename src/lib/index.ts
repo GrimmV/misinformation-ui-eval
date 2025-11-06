@@ -4,7 +4,7 @@ export { default as PreparationQuiz } from './Preparation/Quiz.svelte';
 export { default as PreparationInstructions } from './Preparation/Instructions.svelte';
 export { default as PreparationCompletion } from './Preparation/Completion.svelte';
 export { default as PreparationQuizIntro } from './Preparation/QuizIntro.svelte';
-export { default as MainIntro } from './Main/Intro.svelte';
+export { default as MainIntro } from './Main/MainIntro.svelte';
 export { default as MainExperiment } from './Main/Experiment.svelte';
 export { default as MainCompletion } from './Main/Completion.svelte';
 export { default as SocialMediaPost } from './Main/Experiment/SocialMediaPost.svelte';
@@ -19,7 +19,9 @@ export { default as PerformanceMetrics } from './Main/Experiment/PerformanceMetr
 export { default as ConfusionMatrix } from './Main/Experiment/ConfusionMatrix.svelte';
 export { default as GlobalFeatureImportance } from './Main/Experiment/GlobalFeatureImportance.svelte';
 export { default as PartialDependencePlot } from './Main/Experiment/PartialDependencePlot.svelte';
+export {default as ImageDescription} from './Preparation/ImageDescription.svelte';
 export { default as Heatmap } from './Main/Experiment/Heatmap.svelte';
+export { default as SurveyQuestions } from './Main/Experiment/SurveyQuestions.svelte';
 export type { QuizResults } from './Preparation/Quiz.svelte';
 export type { ExperimentResults } from './Main/Experiment.svelte';
 export { 
