@@ -11,15 +11,15 @@
 
 	interface Props {
 		title: string;
+		context: object;
+		action: string;
 		description: string;
 		extended_description: string;
 		data: any;
-		username?: string;
+		username?: string;		
 	}
 
-	let { title, description, extended_description, data, username }: Props = $props();
-
-	console.log(title, description, extended_description, data, username);
+	let { title, context, action, description, extended_description, data, username }: Props = $props();
 
 	// hover/focus popover state
 	let open = $state(false);
@@ -105,9 +105,10 @@
 			<ChatButton
 				context={
 					"This is the data the user is refering to: \n\n" +
-					"Title: " + title + "\n\n" +
+					"Title: " + action + "\n\n" +
 					"Description: " + description + "\n\n" +
-					"Extended description (not visible to the user): " + extended_description
+					"Extended description (not visible to the user): " + extended_description + "\n\n" +
+					"Context: " + JSON.stringify(context) + "\n\n"
 				}
 				username={username ?? ''}
 			/>

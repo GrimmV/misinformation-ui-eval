@@ -102,6 +102,8 @@
 							>
 								<DataVisualization
 									title={visualization.title}
+									context={visualization.context}
+									action={visualization.action}
 									description={visualization.description}
 									extended_description={visualization.extended_description}
 									data={visualization.data}

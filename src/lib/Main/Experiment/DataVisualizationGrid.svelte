@@ -45,7 +45,7 @@
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
 		{#each visualizations as viz, index (index)}
 			<div class="w-full">
-				<DataVisualization title={viz.title} description={viz.description} extended_description={viz.extended_description} username={username ?? ''} data={viz.data} />
+				<DataVisualization title={viz.title} context={viz.context} action={viz.action} description={viz.description} extended_description={viz.extended_description} data={viz.data} username={username ?? ''} />
 			</div>
 		{/each}
 	</div>
