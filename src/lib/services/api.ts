@@ -5,7 +5,7 @@ import { PUBLIC_BASE_URL as BASE_URL, PUBLIC_PORT as PORT, PUBLIC_API_ENDPOINT_P
 
 // Build full API URL
 function buildApiUrl(endpoint: string): string {
-	return `${BASE_URL}:${PORT}${endpoint}`;
+	return `${BASE_URL}${PORT}${endpoint}`;
 }
 
 // Generic API error class
