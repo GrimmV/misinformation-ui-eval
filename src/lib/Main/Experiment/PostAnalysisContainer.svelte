@@ -4,14 +4,16 @@
 	import type { SocialMediaPostData } from '$lib';
 	import { onMount } from 'svelte';
 	import { CircleCheck, Flag } from 'lucide-svelte';
+	import { uploadClicks } from '$lib';
 
 	interface Props {
 		postIds: number[];
         onComplete: () => void;
 		showAssistant: boolean;
+		username?: string;
 	}
 
-	let { postIds, onComplete, showAssistant = false }: Props = $props();
+	let { postIds, onComplete, showAssistant = false, username }: Props = $props();
 
 	console.log('postIds', postIds);
 
@@ -45,12 +47,9 @@
 			loading = true;
 			error = null;
 			const fetchedPosts = await getSamplePosts() || [];
-			console.log('fetchedPosts', fetchedPosts);
-			console.log('postIds for filtering:', postIds);
 			
 			// Filter out posts with invalid IDs and add fallback IDs if needed
 			posts = fetchedPosts.filter(post => postIds.includes(post.id));
-			console.log('filtered posts', posts);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load posts';
 			console.error('Error loading posts:', err);
@@ -62,7 +61,6 @@
 	// Watch for changes to postIds and reload posts
 	$effect(() => {
 		if (postIds && postIds.length > 0) {
-			console.log('postIds changed, reloading posts:', postIds);
 			loadPosts();
 		}
 	});
@@ -91,6 +89,15 @@
 	}
 
 	function requestConfirm(kind: 'misinfo' | 'not') {
+		uploadClicks({
+			action: 'analysis_decision',
+			username: username ?? '',
+			datetime: new Date(),
+			content: {
+				postId: selectedPostId,
+				kind: kind,
+			}
+		});
 		confirmOpen = kind;
 	}
 
@@ -191,6 +198,7 @@
 				post={selectedPost as SocialMediaPostData}
 				postId={selectedPostId}
 				showAssistant={showAssistant}
+				username={username}
 			/>
 		{:else}
 			<div class="rounded-lg border border-gray-200 bg-white p-12 text-center shadow-sm">

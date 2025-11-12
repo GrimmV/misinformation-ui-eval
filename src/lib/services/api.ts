@@ -1,10 +1,11 @@
 // API service for fetching data from Flask endpoints
 import type { PostVisualizationData } from '$lib/assets/visualizationData';
-import { API_CONFIG, API_ENDPOINTS } from '../config/api';
+
+import { PUBLIC_BASE_URL as BASE_URL, PUBLIC_PORT as PORT, PUBLIC_API_ENDPOINT_POSTS as API_ENDPOINT_POSTS, PUBLIC_API_ENDPOINT_EVALS as API_ENDPOINT_EVALS, PUBLIC_API_ENDPOINT_CHAT as API_ENDPOINT_CHAT } from "$env/static/public";
 
 // Build full API URL
 function buildApiUrl(endpoint: string): string {
-	return `${API_CONFIG.baseUrl}:${API_CONFIG.port}${endpoint}`;
+	return `${BASE_URL}:${PORT}${endpoint}`;
 }
 
 // Generic API error class
@@ -66,7 +67,7 @@ export interface SocialMediaPost {
 }
 
 export async function fetchPosts(): Promise<SocialMediaPost[]> {
-	const url = buildApiUrl(API_ENDPOINTS.posts);
+	const url = buildApiUrl(API_ENDPOINT_POSTS);
 	return apiRequest<SocialMediaPost[]>(url);
 }
 
@@ -80,7 +81,7 @@ export interface EvaluationData {
 }
 
 export async function fetchEvaluationData(postIds: number[]): Promise<EvaluationData[]> {
-	const url = buildApiUrl(API_ENDPOINTS.evaluationData);
+	const url = buildApiUrl(API_ENDPOINT_EVALS);
 	return apiRequest<EvaluationData[]>(url, {
 		method: 'POST',
 		body: JSON.stringify({ datapoint_ids: postIds }),
@@ -93,7 +94,7 @@ export interface OpenAIResponse {
 }
 
 export async function fetchOpenAI(prompt: string): Promise<OpenAIResponse> {
-	const url = buildApiUrl(API_ENDPOINTS.openai);
+	const url = buildApiUrl(API_ENDPOINT_CHAT);
 	return apiRequest<OpenAIResponse>(url, {
 		method: 'POST',
 		body: JSON.stringify({ prompt: prompt }),

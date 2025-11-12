@@ -6,6 +6,7 @@
 		onQuizComplete?: (results: QuizResults) => void;
 		quizQuestions: QuizQuestionType[];
 		description: string;
+		username?: string;
 	}
 
 	export interface QuizResults {
@@ -27,7 +28,8 @@
 	let { 
 		onQuizComplete,
 		quizQuestions,
-		description
+		description,
+		username
 	}: Props = $props();
 
 	let currentQuestionIndex = $state(0);
@@ -106,6 +108,8 @@
 
 		<!-- Current Question -->
 		<QuizQuestion
+			quizId={quizQuestions.length}
+			questionId={currentQuestionIndex}
 			question={currentQuestion.question}
 			explanation={currentQuestion.explanation || ''}
 			options={currentQuestion.options}
@@ -113,6 +117,7 @@
 			isAnswered={isAnswered}
 			onCorrectAnswer={() => handleCorrectAnswer()}
 			onNextQuestion={() => nextQuestion()}
+			{username}
 		/>
 	{/if}
 </div>

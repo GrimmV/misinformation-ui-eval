@@ -1,6 +1,6 @@
 <script lang="ts">
   import ImageDescription from './ImageDescription.svelte';
-
+  import { uploadClicks } from '$lib';
   interface ImageDescriptionItem {
     description: string;
     imageSrc: string;
@@ -13,9 +13,22 @@
     description: string;
     items?: ImageDescriptionItem[];
     onComplete?: () => void;
+    username?: string;
   }
 
-  let { title, description, items = [], onComplete }: Props = $props();
+  let { title, description, items = [], onComplete, username }: Props = $props();
+
+  const handleComplete = () => {
+    onComplete?.();
+    uploadClicks({
+      action: 'quiz_intro',
+      content: {
+        title: title,
+      },
+      username: username ?? '',
+      datetime: new Date(),
+    });
+  }
 </script>
 
 <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">
@@ -39,7 +52,7 @@
 
   <div class="text-center pt-4">
     <button
-      onclick={onComplete}
+      onclick={handleComplete}
       class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 inline-flex items-center"
     >
       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

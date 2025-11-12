@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { fetchOpenAI, type OpenAIResponse } from '$lib/services/api';
+	import { uploadClicks } from '$lib';
 	import { MessageSquare, X } from 'lucide-svelte';
+	import { fetchOpenAI, type OpenAIResponse } from '$lib/services/api';
 
 	interface Props {
 		context?: string;
@@ -11,6 +12,7 @@
 		onopen?: () => void;
 		onclose?: () => void;
 		onresponse?: (event: { prompt: string; response: string }) => void;
+		username?: string;
 	}
 
 	let {
@@ -18,10 +20,11 @@
 		label = 'Ask',
 		placeholder = 'Type your request…',
 		buttonClass = '',
-		dialogTitle = 'Ask the assistant',
+		dialogTitle = 'Your Request',
 		onopen,
 		onclose,
-		onresponse
+		onresponse,
+		username
 	}: Props = $props();
 
 	let isOpen = $state(false);
@@ -81,7 +84,16 @@
 			// "This is a single-turn conversation. Do not make follow-up suggestions.";
 			const result: OpenAIResponse = await fetchOpenAI(fullPrompt);
 			responseText = result.response;
-			onresponse?.({ prompt: prompt.trim(), response: responseText });
+			uploadClicks({
+				action: 'chat_response',
+				username: username ?? '',
+				datetime: new Date(),
+				content: {
+					prompt: prompt.trim(),
+					response: responseText ?? ''
+				}
+			});
+			onresponse?.({ prompt: prompt.trim(), response: responseText ?? '' });
 		} catch (e) {
 			errorMessage = e instanceof Error ? e.message : 'Something went wrong';
 		} finally {
@@ -131,7 +143,7 @@
 	{#if isOpen}
 		<div 
 		role="dialog"
-		aria-label="Chat with the assistant"
+		aria-label="Chat with the system"
 		tabindex="-1"
 		class="fixed z-[9999] w-84 rounded-lg border border-gray-200 bg-white shadow-xl p-2"
 		style="
@@ -150,7 +162,7 @@
 
 			{#if responseText === null}
 				<div class="space-y-3">
-					<label for="chat-input" class="block text-sm font-medium text-gray-700">Your request</label>
+					<!-- <label for="chat-input" class="block text-sm font-medium text-gray-700">Your request</label> -->
 					<textarea
 						id="chat-input"
 						bind:value={prompt}

@@ -1,14 +1,17 @@
 <script lang="ts">
-	import { getSamplePosts, type SocialMediaPostData } from '$lib';
+	import { getSamplePosts, type SocialMediaPostData, uploadClicks } from '$lib';
 	import SocialMediaPost from './SocialMediaPost.svelte';
 	import { toast } from 'svelte-sonner';
 	import { onMount } from 'svelte';
 
 	interface Props {
 		onComplete: (postIds: number[]) => void;
+		username?: string;
 	}
 
-	let { onComplete }: Props = $props();
+	let { onComplete, username }: Props = $props();
+
+	const maxSelectedPosts = 6;
 	
 	// State for selected posts
 	let selectedPosts = $state<Set<number>>(new Set());
@@ -48,10 +51,10 @@
 	function togglePostSelection(postId: number) {
 		if (selectedPosts.has(postId)) {
 			selectedPosts.delete(postId);
-		} else if (selectedPosts.size < 5) {
+		} else if (selectedPosts.size < maxSelectedPosts) {
 			selectedPosts.add(postId);
 		} else {
-			toast.info('You have already selected 5 posts. Please remove another post to select a new one.', {
+			toast.info(`You have already selected ${maxSelectedPosts} posts. Please remove another post to select a new one.`, {
 				duration: 4000,
 				description: 'Click on a selected post to deselect it first.'
 			});
@@ -61,8 +64,16 @@
 	
 	// Handle continue button click
 	function handleContinue() {
-		if (selectedPosts.size === 5) {
+		if (selectedPosts.size === maxSelectedPosts) {
 			console.log('Selected posts:', Array.from(selectedPosts));
+			uploadClicks({
+				action: 'prep_timeline',
+				username: username ?? '',
+				datetime: new Date(),
+				content: {
+					selectedPosts: Array.from(selectedPosts)
+				}
+			});
 			onComplete(Array.from(selectedPosts));
 		}
 	}
@@ -75,19 +86,19 @@
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <h2 class="text-lg font-semibold text-blue-900 mb-2">Instructions</h2>
         <p class="text-blue-800 text-sm leading-relaxed">
-            Please select <strong>exactly 5 posts</strong> that you believe are <strong>NOT aligned</strong> with the "Potential Misinformation" flag. 
-            I.e. posts that are either not flagged but should be, or flagged but should not be.
+            Please select <strong>exactly {maxSelectedPosts} posts</strong> that you believe are <strong>NOT aligned</strong> with the "Potential Misinformation" flag. 
+            I.e. posts that are either not flagged but should be, or flagged but should not be. In the next steps, you will examine these posts in more detail.
         </p>
     </div>
     
     <!-- Selection counter -->
     <div class="flex items-center justify-between mb-4">
         <div class="text-sm text-gray-600">
-            Selected: <span class="font-semibold text-blue-600">{selectedPosts.size}/5</span> posts
+            Selected: <span class="font-semibold text-blue-600">{selectedPosts.size}/{maxSelectedPosts}</span> posts
         </div>
         <button 
             class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            disabled={selectedPosts.size !== 5}
+            disabled={selectedPosts.size !== maxSelectedPosts}
             onclick={handleContinue}
         >
             Continue

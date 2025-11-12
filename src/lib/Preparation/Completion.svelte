@@ -6,9 +6,10 @@
 			correctAnswers: number;
 			totalQuestions: number;
 		};
+		username?: string;
 	}
 
-	let { onContinue, quizResults }: Props = $props();
+	let { onContinue, quizResults, username }: Props = $props();
 </script>
 
 <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8">

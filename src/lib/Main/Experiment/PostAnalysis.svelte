@@ -11,12 +11,14 @@
 		post: SocialMediaPostData;
 		postId: number;	
 		showAssistant?: boolean;
+		username?: string;
 	}
 
 	let {
 		post,
 		postId,
 		showAssistant = false,
+		username,
 	}: Props = $props();
 
 	// State for showing visualizations
@@ -98,9 +100,10 @@
 				<EvaluationAssistant
 						modelPrediction={!post.isFakeNews as boolean}
 						evaluationData={evaluationData}
+						username={username}
 					/>
 				{:else}
-					<DataVisualizationGrid visualizations={evaluationData.visualizations.visualizations} modelPrediction={!post.isFakeNews as boolean}/>
+					<DataVisualizationGrid visualizations={evaluationData.visualizations.visualizations} modelPrediction={!post.isFakeNews as boolean} username={username}/>
 				{/if}
 			{:else}
 				<div class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">

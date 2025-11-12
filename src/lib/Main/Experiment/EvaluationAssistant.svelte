@@ -13,14 +13,20 @@
 	import type { EvaluationData } from '$lib';
 	import type { VisualizationData } from '$lib';
 	import ChatButton from '$lib/Chat/ChatButton.svelte';
-	
+
 	interface Props {
 		modelPrediction: true | false;
 		evaluationData: EvaluationData;
 		showVisualizations?: boolean;
+		username?: string;
 	}
 
-	let { modelPrediction = true, evaluationData, showVisualizations = false }: Props = $props();
+	let {
+		modelPrediction = true,
+		evaluationData,
+		showVisualizations = false,
+		username
+	}: Props = $props();
 
 	// State for showing detailed analysis
 	let showDetailedAnalysis = $state(false);
@@ -126,15 +132,17 @@
 				</p>
 				<div class="flex justify-end">
 					<ChatButton
+						username={username ?? ''}
 						context={JSON.stringify({
 							rationale: evaluationData.rationale,
 							detailedAnalysis: evaluationData.detailedAnalysis,
-							explanations: evaluationData.visualizations.visualizations.map(visualization => {
+							explanations: evaluationData.visualizations.visualizations.map((visualization) => {
 								return {
 									title: visualization.title,
 									description: visualization.description
-								}
-						})})}
+								};
+							})
+						})}
 					/>
 				</div>
 			</div>
@@ -157,6 +165,7 @@
 				{#if showVisualizations}
 					<DataVisualizationCarousel
 						visualizations={evaluationData.visualizations.visualizations as VisualizationData[]}
+						username={username ?? ''}
 					/>
 				{/if}
 			</div>

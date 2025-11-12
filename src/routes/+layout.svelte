@@ -1,17 +1,16 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
-	import '../app.css';
-	import { Navigation } from '$lib';
-	import { Toaster } from 'svelte-sonner';
+import favicon from '$lib/assets/favicon.svg';
+import '../app.css';
+import { Toaster } from 'svelte-sonner';
 
-	let { children } = $props();
+let { children, data } = $props();
+
+console.log(data.user.username);
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
-
-<Navigation />
 
 <main>
 	{@render children?.()}

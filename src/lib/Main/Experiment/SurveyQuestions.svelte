@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { surveyQuestions } from '$lib/assets/surveyQuestions';
 	import { ClipboardList, CheckCircle2, Target, Shield, Brain, ArrowRight } from 'lucide-svelte';
-
+	import { uploadClicks } from '$lib';
 	interface Props {
 		onComplete?: (responses: SurveyResponses) => void;
+		username?: string;
 	}
 
-	let { onComplete }: Props = $props();
+	
+
+	let { onComplete, username }: Props = $props();
 
 	// Likert scale options with color gradients
 	const likertScale = [
@@ -27,6 +30,7 @@
 	// Initialize responses object
 	let responses = $state<SurveyResponses>({});
 	let focusedQuestion = $state<{ category: string; index: number } | null>(null);
+	let optionalComment = $state<string>('');
 
 	// Calculate total questions
 	let totalQuestions = $derived(
@@ -76,7 +80,18 @@
 	// Handle form submission
 	function handleSubmit() {
 		if (allAnswered && onComplete) {
-			onComplete(responses);
+			const submissionData = {
+				...responses,
+				comments: optionalComment.trim() || null
+			} as SurveyResponses & { comments: string | null };
+			uploadClicks({
+				username: username ?? '',
+				datetime: new Date(),
+				content: {
+					responses: submissionData,
+				}
+			});
+			onComplete(submissionData);
 		}
 	}
 
@@ -198,6 +213,21 @@
 				</div>
 			</div>
 		{/each}
+	</div>
+
+	<!-- Optional Comment Section -->
+	<div class="mt-6 space-y-2 border-t border-gray-200 pt-4">
+		<label for="optional-comment" class="block text-sm font-medium text-gray-900">
+			Do you have any other thoughts or comments?
+			<span class="ml-1 text-xs font-normal text-gray-500">(Optional)</span>
+		</label>
+		<textarea
+			id="optional-comment"
+			bind:value={optionalComment}
+			rows="4"
+			class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-all"
+			placeholder="Share any additional thoughts or feedback..."
+		></textarea>
 	</div>
 
 	<!-- Submit Button -->

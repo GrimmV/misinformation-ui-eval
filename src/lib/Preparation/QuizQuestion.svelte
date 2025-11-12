@@ -1,7 +1,9 @@
 <script lang="ts">
   import { Check, X } from "lucide-svelte";
-
+  import { uploadClicks } from '$lib';
   interface Props {
+    quizId: number;
+    questionId: number;
     question: string;
     explanation: string;
     options: string[];
@@ -9,9 +11,12 @@
     isAnswered: boolean; // Whether the question has been answered
     onCorrectAnswer: () => void; // Callback for when correct answer is selected
     onNextQuestion?: () => void; // Callback for when next question is selected
+    username?: string;
   }
 
   let {
+    quizId,
+    questionId,
     question,
     explanation,
     options,
@@ -19,6 +24,7 @@
     onCorrectAnswer,
     onNextQuestion,
     isAnswered,
+    username,
   }: Props = $props();
 
   let selectedAnswer = $state<number | null>(null);
@@ -38,8 +44,24 @@
     isEvaluated = true;
     showFeedback = true;
 
+    const isCorrectAnswerLocal = index === correctAnswer;
+
+    uploadClicks({
+      action: 'quiz_question',
+      content: {
+        quizId,
+        questionId,
+        question: question,
+        isCorrect: isCorrectAnswerLocal,
+        selectedAnswer: index,
+        correctAnswer: correctAnswer,
+        options: options,
+      },
+      username: username ?? '',
+      datetime: new Date(),
+    });
     // Check if the answer is correct
-    if (index === correctAnswer) {
+    if (isCorrectAnswerLocal) {
       // Call the parent's callback if provided
       onCorrectAnswer?.();
     }

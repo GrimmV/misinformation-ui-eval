@@ -14,9 +14,10 @@
 		description: string;
 		extended_description: string;
 		data: any;
+		username?: string;
 	}
 
-	let { title, description, extended_description, data }: Props = $props();
+	let { title, description, extended_description, data, username }: Props = $props();
 
 	// hover/focus popover state
 	let open = $state(false);
@@ -106,6 +107,7 @@
 					"Description: " + description + "\n\n" +
 					"Extended description (not visible to the user): " + extended_description
 				}
+				username={username ?? ''}
 			/>
 		</div>
 		<!-- Hover to reveal visualization -->

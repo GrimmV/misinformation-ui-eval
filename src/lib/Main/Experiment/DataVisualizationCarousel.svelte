@@ -5,9 +5,10 @@
 
 	interface Props {
 		visualizations: VisualizationData[];
+		username?: string;
 	}
 
-	let { visualizations }: Props = $props();
+	let { visualizations, username }: Props = $props();
 
 	// State
 	let currentIndex = $state(0);
@@ -102,6 +103,7 @@
 									description={visualization.description}
 									extended_description={visualization.extended_description}
 									data={visualization.data}
+									username={username ?? ''}
 								/>
 							</button>
 						</div>

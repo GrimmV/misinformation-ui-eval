@@ -7,9 +7,10 @@
 	interface Props {
 		visualizations: VisualizationData[];
         modelPrediction: boolean;
+		username?: string;
 	}
 
-	let { visualizations, modelPrediction }: Props = $props();
+	let { visualizations, modelPrediction, username }: Props = $props();
 
     // Model prediction icon and color
 	let ModelIcon = $derived(modelPrediction ? BookCheck : BookX);
@@ -44,7 +45,7 @@
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
 		{#each visualizations as viz, index (index)}
 			<div class="w-full">
-				<DataVisualization title={viz.title} description={viz.description} data={viz.data} />
+				<DataVisualization title={viz.title} description={viz.description} username={username ?? ''} data={viz.data} />
 			</div>
 		{/each}
 	</div>

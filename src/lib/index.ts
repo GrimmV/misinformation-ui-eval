@@ -1,5 +1,4 @@
 // place files you want to import through the `$lib` alias in this folder.
-export { default as Navigation } from './Navigation.svelte';
 export { default as PreparationQuiz } from './Preparation/Quiz.svelte';
 export { default as PreparationInstructions } from './Preparation/Instructions.svelte';
 export { default as PreparationCompletion } from './Preparation/Completion.svelte';
@@ -24,6 +23,8 @@ export { default as Heatmap } from './Main/Experiment/Heatmap.svelte';
 export { default as SurveyQuestions } from './Main/Experiment/SurveyQuestions.svelte';
 export type { QuizResults } from './Preparation/Quiz.svelte';
 export type { ExperimentResults } from './Main/Experiment.svelte';
+export { default as Login } from './Login/Login.svelte';
+export { default as uploadClicks } from './services/firebase';
 export { 
 	samplePosts, 
 	getSamplePosts, 

@@ -10,6 +10,10 @@
 	import AIDashboardImage from '$lib/assets/images/AIDashboard.png';
 	import { onMount } from 'svelte';
 
+	let { data } = $props();
+
+	const username = data?.user?.username;
+
 	const AiDashboardItems = [
 		{
 			description: `
@@ -102,38 +106,42 @@
 
 <div class="min-h-screen bg-gray-100 pt-4">
 	{#if step === 1}
-		<PrepTimeline onComplete={(postIds) => handlePrepComplete(postIds)} />
+		<PrepTimeline onComplete={(postIds) => handlePrepComplete(postIds)} {username} />
 	{:else if step === 2}
 		<MainIntro
 			title="Main Experiment"
 			description="You will now assess the first three posts with the help of the AI Dashboard."
 			items={AiDashboardItems}
 			onComplete={handleStepComplete}
+			{username}
 		/>
 	{:else if step === 3}
 		<PostAnalysisContainer
 			postIds={postIds.slice(0, 3)}
 			onComplete={handleStepComplete}
 			showAssistant={false}
+			{username}
 		/>
 	{:else if step === 4}
-		<SurveyQuestions onComplete={handleStepComplete} />
+		<SurveyQuestions onComplete={handleStepComplete} {username} />
 	{:else if step === 5}
 		<MainIntro
 			title="Main Experiment"
 			description="You will now assess the last three posts with the help of the AI Assistant."
 			items={AiAssistantItems}
 			onComplete={handleStepComplete}
+			{username}
 		/>
 	{:else if step === 6}
 		<PostAnalysisContainer
 			postIds={postIds.slice(3, 6)}
 			onComplete={handleStepComplete}
 			showAssistant={true}
+			{username}
 		/>
 	{:else if step === 7}
-		<SurveyQuestions onComplete={handleStepComplete} />
+		<SurveyQuestions onComplete={handleStepComplete} {username} />
 	{:else if step === 8}
-		<MainCompletion onComplete={handleStudyComplete} />
+		<MainCompletion onComplete={handleStudyComplete}/>
 	{/if}
 </div>
