@@ -93,11 +93,11 @@ export interface OpenAIResponse {
 	response: string;
 }
 
-export async function fetchOpenAI(prompt: string): Promise<OpenAIResponse> {
+export async function fetchOpenAI(prompt: string, username: string): Promise<OpenAIResponse> {
 	const url = buildApiUrl(API_ENDPOINT_CHAT);
 	return apiRequest<OpenAIResponse>(url, {
 		method: 'POST',
-		body: JSON.stringify({ prompt: prompt }),
+		body: JSON.stringify({ prompt: prompt, username: username }),
 	});
 }
 

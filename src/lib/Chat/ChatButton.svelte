@@ -82,7 +82,7 @@
 			prompt + "\n\n" + "Context: " + 
 			context + "\n\n";
 			// "This is a single-turn conversation. Do not make follow-up suggestions.";
-			const result: OpenAIResponse = await fetchOpenAI(fullPrompt);
+			const result: OpenAIResponse = await fetchOpenAI(fullPrompt, username ?? '');
 			responseText = result.response;
 			uploadClicks({
 				action: 'chat_response',
