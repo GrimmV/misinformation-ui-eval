@@ -19,6 +19,8 @@
 
 	let { title, description, extended_description, data, username }: Props = $props();
 
+	console.log(title, description, extended_description, data, username);
+
 	// hover/focus popover state
 	let open = $state(false);
 	let btnEl: HTMLButtonElement | null = null;

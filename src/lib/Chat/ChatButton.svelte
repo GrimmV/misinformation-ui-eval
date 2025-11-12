@@ -89,7 +89,7 @@
 				username: username ?? '',
 				datetime: new Date(),
 				content: {
-					prompt: prompt.trim(),
+					prompt: fullPrompt,
 					response: responseText ?? ''
 				}
 			});

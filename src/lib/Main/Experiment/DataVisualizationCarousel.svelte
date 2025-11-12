@@ -10,6 +10,8 @@
 
 	let { visualizations, username }: Props = $props();
 
+	console.log(visualizations);
+
 	// State
 	let currentIndex = $state(0);
 	let isTransitioning = $state(false);
