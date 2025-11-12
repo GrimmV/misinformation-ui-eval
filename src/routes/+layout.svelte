@@ -4,8 +4,6 @@ import '../app.css';
 import { Toaster } from 'svelte-sonner';
 
 let { children, data } = $props();
-
-console.log(data.user.username);
 </script>
 
 <svelte:head>
