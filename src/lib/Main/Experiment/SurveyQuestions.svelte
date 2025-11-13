@@ -15,7 +15,7 @@
 	const likertScale = [
 		{ value: 1, label: 'Strongly Disagree', color: 'red', bgColor: 'bg-red-50', borderColor: 'border-red-300', textColor: 'text-red-700' },
 		{ value: 2, label: 'Disagree', color: 'orange', bgColor: 'bg-orange-50', borderColor: 'border-orange-300', textColor: 'text-orange-700' },
-		{ value: 3, label: 'Neutral', color: 'gray', bgColor: 'bg-gray-50', borderColor: 'border-gray-300', textColor: 'text-gray-700' },
+		{ value: 3, label: 'Neutral', color: 'yellow', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-300', textColor: 'text-yellow-700' },
 		{ value: 4, label: 'Agree', color: 'blue', bgColor: 'bg-blue-50', borderColor: 'border-blue-300', textColor: 'text-blue-700' },
 		{ value: 5, label: 'Strongly Agree', color: 'green', bgColor: 'bg-green-50', borderColor: 'border-green-300', textColor: 'text-green-700' }
 	];
@@ -193,7 +193,7 @@
 									{@const isSelected = currentValue === option.value}
 									<button
 										type="button"
-										class="min-w-[70px] rounded-lg border-2 px-3 py-2 text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 {isSelected
+										class="min-w-[120px] rounded-lg border-2 px-3 py-2 text-xs font-semibold transition-all duration-200 hover:scale-105 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 {isSelected
 											? `${option.borderColor} ${option.bgColor} ${option.textColor} shadow-md scale-105`
 											: 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'}"
 										onclick={() => handleResponseChange(category, questionIndex, option.value)}
@@ -203,7 +203,7 @@
 									>
 										<div class="flex flex-col items-center gap-0.5">
 											<span class="text-base font-bold leading-none">{option.value}</span>
-											<span class="text-[10px] leading-tight">{option.label.split(' ')[0]}</span>
+											<span class="text-[10px] leading-tight">{option.label}</span>
 										</div>
 									</button>
 								{/each}

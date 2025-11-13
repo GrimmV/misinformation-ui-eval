@@ -54,7 +54,11 @@
 	}
 
 	function handlePrepComplete(selectedPostIds: number[]) {
+		console.log('Selected postIds:', selectedPostIds);
 		postIds = selectedPostIds;
+		// shuffle postIds
+		postIds = postIds.sort(() => Math.random() - 0.5);
+		console.log('Shuffled postIds:', postIds);
 		step++;
 	}
 
