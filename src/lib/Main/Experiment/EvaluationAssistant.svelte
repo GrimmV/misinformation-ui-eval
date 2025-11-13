@@ -13,6 +13,7 @@
 	import type { EvaluationData } from '$lib';
 	import type { VisualizationData } from '$lib';
 	import ChatButton from '$lib/Chat/ChatButton.svelte';
+	import { uploadClicks } from '$lib';
 
 	interface Props {
 		modelPrediction: true | false;
@@ -38,6 +39,31 @@
 	// Model prediction icon and color
 	let ModelIcon = $derived(modelPrediction ? BookCheck : BookX);
 	let modelColor = $derived(modelPrediction ? 'green' : 'red');
+
+	let toggleDetailedAnalysis = () => {
+		uploadClicks({
+			action: 'toggle_detailed_analysis',
+			username: username ?? '',
+			datetime: new Date(),
+			content: {
+				showDetailedAnalysis: !showDetailedAnalysis,
+				postId: evaluationData.id
+			}
+		});
+		showDetailedAnalysis = !showDetailedAnalysis;
+	};
+	let toggleVisualizations = () => {
+		uploadClicks({
+			action: 'toggle_visualizations',
+			username: username ?? '',
+			datetime: new Date(),
+			content: {
+				showVisualizations: !showVisualizations,
+				postId: evaluationData.id
+			}
+		});
+		showVisualizations = !showVisualizations;
+	};
 </script>
 
 <div class="mx-auto mb-4 w-2xl rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
@@ -115,7 +141,7 @@
 		<div class="rounded-lg border border-blue-200 bg-blue-50 p-4">
 			<button
 				class="flex w-full items-center justify-between text-left"
-				onclick={() => (showDetailedAnalysis = !showDetailedAnalysis)}
+				onclick={toggleDetailedAnalysis}
 			>
 				<div class="flex items-center space-x-2">
 					<Brain class="h-5 w-5 text-blue-600" />
@@ -151,7 +177,7 @@
 			<div class="rounded-lg border border-amber-200 bg-amber-50 p-4">
 				<button
 					class="flex w-full items-center justify-between text-left"
-					onclick={() => (showVisualizations = !showVisualizations)}
+					onclick={toggleVisualizations}
 				>
 					<div class="flex items-center space-x-2">
 						<ChartColumn class="h-5 w-5 text-blue-600" />

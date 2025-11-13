@@ -51,20 +51,15 @@
 	function togglePostSelection(postId: number) {
 		if (selectedPosts.has(postId)) {
 			selectedPosts.delete(postId);
-		} else if (selectedPosts.size < maxSelectedPosts) {
-			selectedPosts.add(postId);
 		} else {
-			toast.info(`You have already selected ${maxSelectedPosts} posts. Please remove another post to select a new one.`, {
-				duration: 4000,
-				description: 'Click on a selected post to deselect it first.'
-			});
+			selectedPosts.add(postId);
 		}
 		selectedPosts = new Set(selectedPosts); // Trigger reactivity
 	}
 	
 	// Handle continue button click
 	function handleContinue() {
-		if (selectedPosts.size === maxSelectedPosts) {
+		if (selectedPosts.size >= maxSelectedPosts) {
 			console.log('Selected posts:', Array.from(selectedPosts));
 			uploadClicks({
 				action: 'prep_timeline',
@@ -86,8 +81,8 @@
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
         <h2 class="text-lg font-semibold text-blue-900 mb-2">Instructions</h2>
         <p class="text-blue-800 text-sm leading-relaxed">
-            Please select <strong>exactly {maxSelectedPosts} posts</strong> that you believe are <strong>NOT aligned</strong> with the "Potential Misinformation" flag. 
-            I.e. posts that are either not flagged but should be, or flagged but should not be. In the next steps, you will examine these posts in more detail.
+            Please select <strong>at least {maxSelectedPosts} posts</strong> that you believe are <strong>NOT aligned</strong> with the "Potential Misinformation" flag. 
+            I.e. posts that are either not flagged but should be, or flagged but should not be. In the next steps, you will examine six of these posts in more detail.
         </p>
     </div>
     
@@ -98,7 +93,7 @@
         </div>
         <button 
             class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-            disabled={selectedPosts.size !== maxSelectedPosts}
+            disabled={selectedPosts.size < maxSelectedPosts}
             onclick={handleContinue}
         >
             Continue

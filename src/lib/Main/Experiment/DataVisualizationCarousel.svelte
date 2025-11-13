@@ -2,7 +2,7 @@
 	import { ChevronLeft, ChevronRight, Circle } from 'lucide-svelte';
 	import DataVisualization from './DataVisualization.svelte';
 	import type { VisualizationData } from '$lib';
-
+	import { uploadClicks } from '$lib';
 	interface Props {
 		visualizations: VisualizationData[];
 		username?: string;
@@ -28,6 +28,14 @@
 			isTransitioning = true;
 			currentIndex++;
 			setTimeout(() => (isTransitioning = false), 300);
+			uploadClicks({
+				action: 'next_visualization',
+				username: username ?? '',
+				datetime: new Date(),
+				content: {
+					visualizationIndex: currentIndex
+				}
+			});
 		}
 	}
 
@@ -37,6 +45,14 @@
 			isTransitioning = true;
 			currentIndex--;
 			setTimeout(() => (isTransitioning = false), 300);
+			uploadClicks({
+				action: 'previous_visualization',
+				username: username ?? '',
+				datetime: new Date(),
+				content: {
+					visualizationIndex: currentIndex
+				}
+			});
 		}
 	}
 
@@ -45,6 +61,14 @@
 		isTransitioning = true;
 		currentIndex = index;
 		setTimeout(() => (isTransitioning = false), 300);
+		uploadClicks({
+			action: 'go_to_visualization',
+			username: username ?? '',
+			datetime: new Date(),
+			content: {
+				visualizationIndex: index
+			}
+		});
 	}
 </script>
 
