@@ -1,9 +1,8 @@
 <script lang="ts">
-	import DataVisualization from './DataVisualization.svelte';
 	import { Shield } from 'lucide-svelte';
 	import type { VisualizationData } from '$lib';
 	import { BookCheck, BookX } from 'lucide-svelte';
-
+	import DataVisualizationCarousel from './DataVisualizationCarousel.svelte';
 	interface Props {
 		visualizations: VisualizationData[];
         modelPrediction: boolean;
@@ -42,12 +41,13 @@
 		</div>
 	</div>
 	<!-- Grid of visualizations -->
-	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
+	<!-- <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
 		{#each visualizations as viz, index (index)}
 			<div class="w-full">
 				<DataVisualization title={viz.title} context={viz.context} action={viz.action} description={viz.description} extended_description={viz.extended_description} data={viz.data} username={username ?? ''} />
 			</div>
 		{/each}
-	</div>
+	</div> -->
+	<DataVisualizationCarousel visualizations={visualizations} username={username ?? ''} />
 </div>
 
