@@ -243,14 +243,14 @@ function getClassTextColor() {
 					stroke-width="0.75"
 					stroke-dasharray="2 4"
 				/>
-				<text
+				<!-- <text
 					x={padding - 12}
 					y={y + 3}
 					class="text-[10px] font-medium fill-slate-500"
 					text-anchor="end"
 				>
 					{tick}{shouldScaleAverage() ? '%' : ''}
-				</text>
+				</text> -->
 			{/each}
 
 			<!-- X-axis ticks -->
