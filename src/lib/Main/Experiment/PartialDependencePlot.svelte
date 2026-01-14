@@ -1,184 +1,168 @@
 <script lang="ts">
+	import type { Feature } from './Features.svelte';
 
-interface Props {
-	feature: string;
-	class: string;
-	grid_values: number[];
-	average: number[];
-	title?: string;
-}
+	type BinCategory = 'low' | 'elevated' | 'high' | 'negative' | 'neutral' | 'positive';
 
-let {
-	feature,
-	class: classLabel,
-	grid_values,
-	average,
-	title = 'Partial Dependence Plot'
-}: Props = $props();
+	interface Props {
+		feature: string;
+		class: string;
+		grid_values: number[];
+		average: number[];
+		title?: string;
+		features?: Record<string, Feature>;
+	}
 
-// Chart dimensions and layout
-const chartWidth = 360;
-const chartHeight = 220;
-const padding = 32;
+	interface BinnedData {
+		category: BinCategory;
+		averageValue: number;
+		count: number;
+	}
 
-// Axis configuration
-const yMin = 0;
-const yMax = 100;
-const yTicks = [0, 25, 50, 75, 100];
+	let {
+		feature,
+		class: classLabel,
+		grid_values,
+		average,
+		title = 'Partial Dependence Plot',
+		features = {}
+	}: Props = $props();
 
-const shouldScaleAverage = $derived(() => {
-	if (!average.length) return false;
-	const maxOriginal = Math.max(...average);
-	const minOriginal = Math.min(...average);
-	return minOriginal >= 0 && maxOriginal <= 1.001;
-});
+	// Check if feature range spans negative to positive
+	function spansZero(featureData: Feature): boolean {
+		return featureData.min < 0 && featureData.max > 0;
+	}
 
-const scaledAverage = $derived(() => average.map(value => (shouldScaleAverage() ? value * 100 : value)));
+	// Map a numeric value to a bin category
+	function valueToBin(value: number, featureData: Feature): BinCategory {
+		if (spansZero(featureData)) {
+			// Negative-to-positive scale
+			if (value < -0.1) return 'negative';
+			if (value > 0.1) return 'positive';
+			return 'neutral';
+		} else {
+			// Positive-only scale
+			const range = featureData.max - featureData.min;
+			if (range === 0) return 'low';
+			const normalized = (value - featureData.min) / range;
+			if (normalized < 0.33) return 'low';
+			if (normalized < 0.67) return 'elevated';
+			return 'high';
+		}
+	}
 
-const minValue = $derived(() => (scaledAverage().length ? Math.min(...scaledAverage()) : 0));
-const maxValue = $derived(() => (scaledAverage().length ? Math.max(...scaledAverage()) : 0));
-const minGrid = $derived(() => (grid_values.length ? Math.min(...grid_values) : 0));
-const maxGrid = $derived(() => (grid_values.length ? Math.max(...grid_values) : 0));
+	// Get bin categories for a feature
+	function getBinCategories(featureData: Feature): BinCategory[] {
+		if (spansZero(featureData)) {
+			return ['negative', 'neutral', 'positive'];
+		} else {
+			return ['low', 'elevated', 'high'];
+		}
+	}
 
-const classStyles = $derived(() => {
-	if (classLabel === 'True') {
-		return {
-			stroke: '#16a34a',
-			point: '#0f766e',
-			area: 'rgba(134, 239, 172, 0.35)',
-			accentText: 'text-emerald-600',
-			badge: 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+	// Categorize and aggregate data into bins
+	const binnedData = $derived(() => {
+		const featureData = features[feature];
+		if (!featureData || !grid_values.length || !average.length) return null;
+
+		const bins: Record<BinCategory, number[]> = {
+			low: [],
+			elevated: [],
+			high: [],
+			negative: [],
+			neutral: [],
+			positive: []
 		};
+
+		// Group values by bin
+		for (let i = 0; i < grid_values.length && i < average.length; i++) {
+			const bin = valueToBin(grid_values[i], featureData);
+			bins[bin].push(average[i]);
+		}
+
+		// Calculate averages for each bin
+		const binCategories = getBinCategories(featureData);
+		const result: BinnedData[] = [];
+
+		for (const category of binCategories) {
+			const values = bins[category];
+			if (values.length > 0) {
+				const avg = values.reduce((sum, val) => sum + val, 0) / values.length;
+				// Scale to percentage if needed
+				const scaledAvg = avg <= 1.001 ? avg * 100 : avg;
+				result.push({
+					category,
+					averageValue: scaledAvg,
+					count: values.length
+				});
+			}
+		}
+
+		return result;
+	});
+
+	// Determine effect strength based on percentage
+	function getEffectStrength(percentage: number): 'strong' | 'normal' | 'low' {
+		if (percentage > 45) return 'strong';
+		if (percentage > 30) return 'normal';
+		return 'low';
 	}
 
-	return {
-		stroke: '#dc2626',
-		point: '#b91c1c',
-		area: 'rgba(254, 202, 202, 0.45)',
-		accentText: 'text-rose-600',
-		badge: 'border border-rose-200 bg-rose-50 text-rose-700'
-	};
-});
-
-const gridPatternId = $derived(() => {
-	const safeFeature = feature.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-	return `pdp-grid-${safeFeature}-${classLabel.toLowerCase()}`;
-});
-
-const xSteps = $derived(() => Math.max(grid_values.length - 1, 1));
-
-const representativeXTicks = $derived(() => {
-	if (!grid_values.length) return [];
-	if (grid_values.length <= 4) {
-		return grid_values.map((value, index) => ({
-			index,
-			value
-		}));
+	// Get impact label based on strength
+	function getImpactLabel(strength: 'strong' | 'normal' | 'low'): string {
+		if (strength === 'strong') return 'Strong impact';
+		if (strength === 'normal') return 'Normal impact';
+		return 'Low impact';
 	}
 
-	const segments = 3;
-	const step = xSteps() / segments;
+	// Get color based on effect strength
+	function getBarColor(strength: 'strong' | 'normal' | 'low'): string {
+		if (strength === 'strong') return 'bg-red-600';
+		if (strength === 'normal') return 'bg-orange-400';
+		return 'bg-yellow-200';
+	}
 
-	return Array.from({ length: segments + 1 }, (_, i) => {
-		const index = Math.round(i * step);
+	const classStyles = $derived(() => {
+		if (classLabel === 'True') {
+			return {
+				badge: 'border border-emerald-200 bg-emerald-50 text-emerald-700'
+			};
+		}
+
 		return {
-			index: Math.min(index, grid_values.length - 1),
-			value: grid_values[Math.min(index, grid_values.length - 1)]
+			badge: 'border border-rose-200 bg-rose-50 text-rose-700'
 		};
 	});
-});
 
-// Helper function to format feature names
-function formatFeatureName(feature: string): string {
-	return feature
-		.split('_')
-		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
-}
+	// Calculate max value for bar scaling
+	const maxBarValue = $derived(() => {
+		if (!binnedData()) return 100;
+		return Math.max(...binnedData()!.map(b => b.averageValue), 100);
+	});
 
-function formatGridValue(value: number): string {
-	return value.toFixed(3);
-}
-
-function formatImpactValue(value: number): string {
-	return shouldScaleAverage() ? `${value.toFixed(1)}%` : value.toFixed(3);
-}
-
-function formatPointLabel(index: number): string {
-	const values = scaledAverage();
-	if (!values.length) return '';
-	const value = values[index];
-	return shouldScaleAverage() ? `${value.toFixed(1)}%` : value.toFixed(2);
-}
-
-function clamp(value: number, min: number, max: number) {
-	return Math.min(max, Math.max(min, value));
-}
-
-function calculateX(index: number) {
-	return padding + (index / xSteps()) * (chartWidth - 2 * padding);
-}
-
-function calculateY(value: number) {
-	const ratio = (value - yMin) / (yMax - yMin);
-	const clampedRatio = isFinite(ratio) ? clamp(ratio, 0, 1) : 0.5;
-	return padding + (1 - clampedRatio) * (chartHeight - 2 * padding);
-}
-
-// Convert data point to SVG coordinates
-function getPointCoordinates(index: number) {
-	const values = scaledAverage();
-	if (!values.length) {
-		return { x: padding, y: chartHeight - padding };
-}
-
-	const x = calculateX(index);
-	const y = calculateY(values[index]);
-	return { x, y };
-}
-
-function getLabelOffsetY(y: number) {
-	const buffer = 16;
-	if (y - buffer <= padding) {
-		return 14;
+	// Helper function to format feature names
+	function formatFeatureName(feature: string): string {
+		return feature
+			.split('_')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
 	}
 
-	return -10;
-}
-
-function getPathPoints() {
-	const values = scaledAverage();
-	if (!grid_values.length || !values.length) {
-		return [];
+	// Format bin label for display
+	function formatBinLabel(bin: BinCategory): string {
+		return bin.charAt(0).toUpperCase() + bin.slice(1);
 	}
 
-	return grid_values.map((_, index) => getPointCoordinates(index));
-}
+	// Determine which bin the current feature value falls into
+	const currentFeatureBin = $derived(() => {
+		const featureData = features[feature];
+		if (!featureData) return null;
+		return valueToBin(featureData.value, featureData);
+	});
 
-// Generate SVG path for the line
-function getPathData() {
-	const points = getPathPoints();
-	if (!points.length) return '';
-
-	return points.reduce((acc, point, index) => {
-		if (index === 0) return `M ${point.x} ${point.y}`;
-		return `${acc} L ${point.x} ${point.y}`;
-	}, '');
-}
-
-function getAreaPathData() {
-	const points = getPathPoints();
-	if (!points.length) return '';
-
-	const baselineY = chartHeight - padding;
-	const pathHead = points.map(point => `L ${point.x} ${point.y}`).join(' ');
-
-	return `M ${points[0].x} ${baselineY} ${pathHead} L ${points[points.length - 1].x} ${baselineY} Z`;
-}
-
-function getClassTextColor() {
-	return classStyles().accentText;
-}
+	// Check if a bar should be highlighted
+	function isHighlightedBar(binCategory: BinCategory): boolean {
+		return currentFeatureBin() === binCategory;
+	}
 </script>
 
 <div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
@@ -192,171 +176,40 @@ function getClassTextColor() {
 		</span>
 	</div>
 
-	<!-- Chart -->
-	<div class="relative mb-4">
-		<svg width={chartWidth} height={chartHeight} class="overflow-visible">
-			<!-- Grid lines -->
-			<defs>
-				<pattern id={gridPatternId()} width="24" height="24" patternUnits="userSpaceOnUse">
-					<path d="M 24 0 L 0 0 0 24" fill="none" stroke="#f1f5f9" stroke-width="1" />
-				</pattern>
-			</defs>
-
-			<rect width="100%" height="100%" rx="8" fill="#f8fafc" />
-			<rect
-				x={padding}
-				y={padding}
-				width={chartWidth - 2 * padding}
-				height={chartHeight - 2 * padding}
-				fill={`url(#${gridPatternId()})`}
-				opacity="0.35"
-				rx="6"
-			/>
-
-			<!-- Axes -->
-			<line
-				x1={padding}
-				y1={padding}
-				x2={padding}
-				y2={chartHeight - padding}
-				stroke="#cbd5f5"
-				stroke-width="1.25"
-			/>
-			<line
-				x1={padding}
-				y1={chartHeight - padding}
-				x2={chartWidth - padding}
-				y2={chartHeight - padding}
-				stroke="#cbd5f5"
-				stroke-width="1.25"
-			/>
-
-			<!-- Y-axis ticks -->
-			{#each yTicks as tick}
-				{@const y = calculateY(tick)}
-				<line
-					x1={padding - 6}
-					y1={y}
-					x2={chartWidth - padding}
-					y2={y}
-					stroke="#e2e8f0"
-					stroke-width="0.75"
-					stroke-dasharray="2 4"
-				/>
-				<!-- <text
-					x={padding - 12}
-					y={y + 3}
-					class="text-[10px] font-medium fill-slate-500"
-					text-anchor="end"
-				>
-					{tick}{shouldScaleAverage() ? '%' : ''}
-				</text> -->
+	<!-- Simplified Bar Chart -->
+	{#if binnedData() && binnedData()!.length > 0}
+		<div class="space-y-3">
+			{#each binnedData()! as bin}
+				{@const strength = getEffectStrength(bin.averageValue)}
+				{@const barWidth = (bin.averageValue / maxBarValue()) * 100}
+				{@const isHighlighted = isHighlightedBar(bin.category)}
+				<div class="space-y-1">
+					<div class="flex items-center justify-between text-xs">
+						<span class="font-medium text-gray-700">{formatBinLabel(bin.category)}</span>
+						<span class="font-medium text-gray-600">{getImpactLabel(strength)}</span>
+					</div>
+					<div class="relative h-6 w-full rounded bg-gray-100 {isHighlighted ? 'ring-4 ring-blue-500' : ''} overflow-hidden">
+						<div 
+							class="h-full {getBarColor(strength)} transition-all duration-300"
+							style="width: {Math.min(barWidth, 100)}%"
+							title="{formatBinLabel(bin.category)}: {getImpactLabel(strength)}{isHighlighted ? ' (Current feature value)' : ''}"
+						></div>
+					</div>
+				</div>
 			{/each}
-
-			<!-- X-axis ticks -->
-			{#each representativeXTicks() as tick}
-				{@const coords = getPointCoordinates(tick.index)}
-				<line
-					x1={coords.x}
-					y1={chartHeight - padding}
-					x2={coords.x}
-					y2={chartHeight - padding + 6}
-					stroke="#cbd5f5"
-					stroke-width="1"
-				/>
-				<text
-					x={coords.x}
-					y={chartHeight - padding + 18}
-					class="text-[10px] font-medium fill-slate-500"
-					text-anchor="middle"
-				>
-					{formatGridValue(tick.value)}
-				</text>
-			{/each}
-
-			<text
-				x={padding - 24}
-				y={padding - 12}
-				class="text-[10px] font-semibold fill-slate-500 uppercase tracking-wide"
-				text-anchor="start"
-			>
-				{shouldScaleAverage() ? 'Impact (%)' : 'Impact'}
-			</text>
-
-			<!-- Area under curve -->
-			{#if getAreaPathData()}
-				<path
-					d={getAreaPathData()}
-					fill={classStyles().area}
-				/>
-			{/if}
-
-			<!-- Main line -->
-			{#if getPathData()}
-				<path
-					d={getPathData()}
-					fill="none"
-					stroke={classStyles().stroke}
-					stroke-width="2.5"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				/>
-			{/if}
-
-			<!-- Data points + annotations -->
-			{#each grid_values as _, index}
-				{@const coords = getPointCoordinates(index)}
-				<g>
-					<circle
-						cx={coords.x}
-						cy={coords.y}
-						r="4"
-						fill="#ffffff"
-						stroke={classStyles().stroke}
-						stroke-width="2"
-					/>
-					<circle
-						cx={coords.x}
-						cy={coords.y}
-						r="2.5"
-						fill={classStyles().point}
-					/>
-					<text
-						x={coords.x}
-						y={coords.y + getLabelOffsetY(coords.y)}
-						text-anchor="middle"
-						class="text-[10px] font-semibold fill-slate-700"
-						style="paint-order: stroke fill; stroke: rgba(255,255,255,0.9); stroke-width: 3;"
-					>
-						{formatPointLabel(index)}
-					</text>
-					<title>
-						{formatFeatureName(feature)}: {formatGridValue(grid_values[index])} → {formatPointLabel(index)}
-					</title>
-				</g>
-			{/each}
-		</svg>
-	</div>
-
-	<!-- Chart Info -->
-	<div class="grid grid-cols-2 gap-4 text-[11px] text-slate-600">
-		<div class="space-y-1">
-			<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Feature Values</p>
-			<div class="flex items-center justify-between rounded-md bg-slate-50 px-2 py-1">
-				<span class="font-medium text-slate-600">Range</span>
-				<span class="font-mono text-slate-500">
-					{formatGridValue(minGrid())} – {formatGridValue(maxGrid())}
-				</span>
-			</div>
 		</div>
-		<div class="space-y-1">
-			<p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Partial Dependence</p>
-			<div class="flex items-center justify-between rounded-md bg-slate-50 px-2 py-1">
-				<span class="font-medium text-slate-600">Impact</span>
-				<span class={`font-mono ${getClassTextColor()}`}>
-					{formatImpactValue(minValue())} – {formatImpactValue(maxValue())}
-				</span>
-			</div>
+	{:else}
+		<div class="flex items-center justify-center py-8">
+			<span class="text-sm text-gray-500">Unable to process partial dependence data</span>
 		</div>
+	{/if}
+	
+	<!-- Description -->
+	<div class="mt-3 pt-3 border-t border-gray-100">
+		<p class="text-xs text-gray-600 leading-relaxed">
+			<strong>Purpose:</strong> Shows how different value ranges of a feature affect the model's prediction on average. 
+			<strong>How to read:</strong> Each bar represents a value category (Low/High or Negative/Positive). 
+			The impact estimates how often the value category is associated with the prediction class.
+		</p>
 	</div>
 </div>

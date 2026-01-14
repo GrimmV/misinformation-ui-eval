@@ -3,13 +3,15 @@
 	import type { VisualizationData } from '$lib';
 	import { BookCheck, BookX } from 'lucide-svelte';
 	import DataVisualizationCarousel from './DataVisualizationCarousel.svelte';
+	import type { Feature } from './Features.svelte';
 	interface Props {
 		visualizations: VisualizationData[];
         modelPrediction: boolean;
+        features: Record<string, Feature>;
 		username?: string;
 	}
 
-	let { visualizations, modelPrediction, username }: Props = $props();
+	let { visualizations, modelPrediction, features, username }: Props = $props();
 
     // Model prediction icon and color
 	let ModelIcon = $derived(modelPrediction ? BookCheck : BookX);
@@ -48,6 +50,6 @@
 			</div>
 		{/each}
 	</div> -->
-	<DataVisualizationCarousel visualizations={visualizations} username={username ?? ''} />
+	<DataVisualizationCarousel visualizations={visualizations} features={features} username={username ?? ''} />
 </div>
 

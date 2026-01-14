@@ -3,12 +3,14 @@
 	import DataVisualization from './DataVisualization.svelte';
 	import type { VisualizationData } from '$lib';
 	import { uploadClicks } from '$lib';
+	import type { Feature } from './Features.svelte';
 	interface Props {
 		visualizations: VisualizationData[];
 		username?: string;
+		features: Record<string, Feature>;
 	}
 
-	let { visualizations, username }: Props = $props();
+	let { visualizations, features, username }: Props = $props();
 
 	console.log(visualizations);
 
@@ -16,10 +18,13 @@
 	let currentIndex = $state(0);
 	let isTransitioning = $state(false);
 
-	// Computed values
-	let currentVisualization = $derived(visualizations[currentIndex] as VisualizationData);
-	let hasNext = $derived(currentIndex < visualizations.length - 1);
+	let relevantVisualizations = $derived(visualizations.filter(visualization => visualization.title !== 'feature distribution'));
+	let relevantVisualizationsLength = $derived(relevantVisualizations.length);
+	let hasNext = $derived(currentIndex < relevantVisualizationsLength - 1);
 	let hasPrevious = $derived(currentIndex > 0);
+
+	// Computed values
+	let currentVisualization = $derived(relevantVisualizations[currentIndex] as VisualizationData);
 
 	// Navigation functions
 	function nextVisualization() {
@@ -80,7 +85,7 @@
 			<p class="text-sm text-gray-500">Interactive visualizations and insights</p>
 		</div>
 		<div class="flex items-center space-x-2 text-sm text-gray-500">
-			<span>{currentIndex + 1} of {visualizations.length}</span>
+			<span>{currentIndex + 1} of {relevantVisualizationsLength}</span>
 		</div>
 	</div>
 
@@ -114,7 +119,7 @@
 				style="transform: translateX(calc(50% - 200px - {currentIndex * 400}px))"
 			>
 				<div class="flex pr-16 pl-16">
-					{#each visualizations as visualization, index (index)}
+					{#each relevantVisualizations as visualization, index (index)}
 						<div class="w-96 flex-shrink-0 px-2">
 							<button
 								class="cursor-pointer transition-all duration-300 {index === currentIndex
@@ -132,6 +137,7 @@
 									extended_description={visualization.extended_description}
 									data={visualization.data}
 									username={username ?? ''}
+									features={features}
 								/>
 							</button>
 						</div>
@@ -141,9 +147,9 @@
 		</div>
 
 		<!-- Indicators -->
-		{#if visualizations.length > 1}
+		{#if relevantVisualizationsLength > 1}
 			<div class="mt-6 flex justify-center space-x-2">
-				{#each visualizations as _, index (index)}
+				{#each relevantVisualizations as _, index (index)}
 					<button
 						class="rounded-full p-1 transition-all duration-200 hover:bg-gray-100"
 						onclick={() => goToVisualization(index)}

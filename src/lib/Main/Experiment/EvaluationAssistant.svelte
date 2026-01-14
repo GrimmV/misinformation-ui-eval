@@ -14,19 +14,22 @@
 	import type { VisualizationData } from '$lib';
 	import ChatButton from '$lib/Chat/ChatButton.svelte';
 	import { uploadClicks } from '$lib';
+	import type { Feature } from './Features.svelte';
 
 	interface Props {
 		modelPrediction: true | false;
 		evaluationData: EvaluationData;
 		showVisualizations?: boolean;
 		username?: string;
+		features: Record<string, Feature>;
 	}
 
 	let {
 		modelPrediction = true,
 		evaluationData,
 		showVisualizations = false,
-		username
+		username,
+		features
 	}: Props = $props();
 
 	// State for showing detailed analysis
@@ -192,6 +195,7 @@
 					<DataVisualizationCarousel
 						visualizations={evaluationData.visualizations.visualizations as VisualizationData[]}
 						username={username ?? ''}
+						features={features}
 					/>
 				{/if}
 			</div>

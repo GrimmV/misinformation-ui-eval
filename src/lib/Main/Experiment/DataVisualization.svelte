@@ -8,6 +8,7 @@
 	import PartialDependencePlot from './PartialDependencePlot.svelte';
 	import Heatmap from './Heatmap.svelte';
 	import ChatButton from '$lib/Chat/ChatButton.svelte';
+	import type { Feature } from './Features.svelte';
 
 	interface Props {
 		title: string;
@@ -17,9 +18,10 @@
 		extended_description: string;
 		data: any;
 		username?: string;		
+		features: Record<string, Feature>;
 	}
 
-	let { title, context, action, description, extended_description, data, username }: Props = $props();
+	let { title, context, action, description, extended_description, data, username, features }: Props = $props();
 
 	// hover/focus popover state
 	let open = $state(false);
@@ -173,7 +175,7 @@
 		<div class="p-3">
 			<div class="w-[420px] max-w-full">
 				{#if title === 'individual feature importance'}
-					<ShapBarChart values={data.values} />
+					<ShapBarChart values={data.values} features={features} />
 				{:else if title === 'feature distribution'}
 					<FeatureDistribution counts={data.counts} edges={data.edges} featureName="placeholder" />
 				{:else if title === 'performance metrics'}
@@ -193,9 +195,12 @@
 						class={data.class}
 						grid_values={data.grid_values}
 						average={data.average}
+						features={features}
 					/>
 				{:else if title === 'feature distribution 2D'}
-					<Heatmap markdownTable={data} />
+					<Heatmap markdownTable={data} 
+					features={features}
+					/>
 				{/if}
 			</div>
 		</div>

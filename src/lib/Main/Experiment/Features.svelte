@@ -1,25 +1,37 @@
 <script lang="ts">
 	import { Info } from 'lucide-svelte';
 
-	export interface Feature{
+	export interface Feature {
 		description: string;
 		max: number;
 		min: number;
 		value: number;
-	};
+	}
 
 	interface Props {
 		features: Record<string, Feature>;
 	}
 
 	let { features }: Props = $props();
-	
+
 	// Format feature name
 	function formatFeatureName(name: string): string {
 		return name
 			.split('_')
 			.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
+	}
+
+	// Check if range spans negative to positive
+	function spansZero(feature: Feature): boolean {
+		return feature.min < 0 && feature.max > 0;
+	}
+
+	// Calculate zero position percentage
+	function getZeroPosition(feature: Feature): number {
+		const range = feature.max - feature.min;
+		if (range === 0) return 0;
+		return ((0 - feature.min) / range) * 100;
 	}
 
 	// Calculate percentage for progress bar
@@ -29,10 +41,26 @@
 		return ((feature.value - feature.min) / range) * 100;
 	}
 
-	// Get color based on feature type and value
+	// Get bar style string for spans-zero case
+	function getBarStyleString(feature: Feature): string {
+		const zeroPos = getZeroPosition(feature);
+		const valuePos = getPercentage(feature);
+
+		if (feature.value < 0) {
+			// Red bar growing left from zero
+			const width = zeroPos - valuePos;
+			return `width: ${width}%; right: ${100 - zeroPos}%; background-color: #ef4444;`;
+		} else {
+			// Blue bar growing right from zero
+			const width = Math.abs(valuePos - zeroPos);
+			return `width: ${width}%; left: ${zeroPos}%; background-color: #3b82f6;`;
+		}
+	}
+
+	// Get color based on feature type and value (for non-spans-zero case)
 	function getColor(feature: Feature, featureName: string): string {
 		const percentage = getPercentage(feature);
-		
+
 		// Continuous features (0 to 1)
 		if (percentage < 33) return 'bg-blue-300';
 		if (percentage < 67) return 'bg-blue-400';
@@ -48,21 +76,21 @@
 	function handleTooltipPosition(tooltip: HTMLElement, card: HTMLElement) {
 		const cardRect = card.getBoundingClientRect();
 		const spacing = 8; // ml-2 = 0.5rem = 8px
-		
+
 		tooltip.style.left = `${cardRect.right + spacing}px`;
 		tooltip.style.top = `${cardRect.top}px`;
 	}
 </script>
 
-<div class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm w-full overflow-y-hidden">
+<div class="w-full overflow-y-hidden rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
 	<div class="mb-3">
 		<h3 class="text-base font-semibold text-gray-900">Derived Features</h3>
 	</div>
 
 	<!-- Grid container: 3 features per row on large screens -->
-	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 		{#each Object.entries(features) as [featureName, feature]}
-			<div 
+			<div
 				class="group relative w-full rounded-lg border border-gray-100 bg-gray-50 p-3 transition-all hover:border-gray-200 hover:shadow-sm"
 				role="presentation"
 				onmouseenter={(e) => {
@@ -77,23 +105,39 @@
 				<div class="w-full">
 					<div class="space-y-2">
 						<div class="flex items-center justify-between">
-							<h4 class="text-xs font-medium text-gray-900 leading-tight">
+							<h4 class="text-xs leading-tight font-medium text-gray-900">
 								{formatFeatureName(featureName)}
 							</h4>
-							<Info class="h-3 w-3 text-gray-400 transition-colors group-hover:text-blue-500 flex-shrink-0" />
+							<Info
+								class="h-3 w-3 flex-shrink-0 text-gray-400 transition-colors group-hover:text-blue-500"
+							/>
 						</div>
-						
+
 						<!-- Progress Bar -->
-						<div class="relative h-1.5 bg-gray-200 rounded-full overflow-hidden">
+						<div class="relative h-1.5 overflow-hidden rounded-full bg-gray-200">
+							<!-- Zero indicator line -->
 							<div
-								class="h-full {getColor(feature, featureName)} transition-all duration-300"
-								style="width: {getPercentage(feature)}%"
+								class="absolute top-0 z-10 h-full w-0.5 bg-gray-400"
+								style="left: {getZeroPosition(feature)}%"
 							></div>
+							{#if spansZero(feature)}
+								<!-- Value bar (red if negative, blue if positive) -->
+								<div
+									class="absolute top-0 h-full transition-all duration-300"
+									style={getBarStyleString(feature)}
+								></div>
+							{:else}
+								<!-- Standard bar for non-spans-zero ranges -->
+								<div
+									class="h-full {getColor(feature, featureName)} transition-all duration-300"
+									style="width: {getPercentage(feature)}%"
+								></div>
+							{/if}
 						</div>
-						
+
 						<!-- Value and Range -->
 						<div class="flex items-center justify-between">
-							<span class="text-xs font-mono font-semibold text-gray-700">
+							<span class="font-mono text-xs font-semibold text-gray-700">
 								{formatValue(feature.value)}
 							</span>
 							<span class="text-xs text-gray-500">
@@ -104,16 +148,16 @@
 				</div>
 
 				<!-- Feature Description (Tooltip on Hover) -->
-				<div 
+				<div
 					data-tooltip
-					class="fixed w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 pointer-events-none"
+					class="pointer-events-none invisible fixed z-50 w-64 rounded-lg bg-gray-900 p-3 text-xs text-white opacity-0 shadow-lg transition-all duration-200 group-hover:visible group-hover:opacity-100"
 				>
 					<div class="flex items-start space-x-2">
-						<Info class="h-3 w-3 text-blue-400 mt-0.5 flex-shrink-0" />
+						<Info class="mt-0.5 h-3 w-3 flex-shrink-0 text-blue-400" />
 						<p class="leading-relaxed">{feature.description}</p>
 					</div>
 					<!-- Tooltip Arrow -->
-					<div class="absolute left-0 top-4 -ml-1 w-2 h-2 bg-gray-900 rotate-45"></div>
+					<div class="absolute top-4 left-0 -ml-1 h-2 w-2 rotate-45 bg-gray-900"></div>
 				</div>
 			</div>
 		{/each}

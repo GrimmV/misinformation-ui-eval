@@ -47,7 +47,7 @@
 	];
 
 	let step = $state(1);
-	let postIds = $state<number[]>([]);
+	let postIds = $state<number[]>([34, 35, 36]);
 
 	function handleStepComplete() {
 		step++;
@@ -110,42 +110,20 @@
 
 <div class="min-h-screen bg-gray-100 pt-4">
 	{#if step === 1}
-		<PrepTimeline onComplete={(postIds) => handlePrepComplete(postIds)} {username} />
-	{:else if step === 2}
-		<MainIntro
-			title="Main Experiment"
-			description="You will now assess the first three posts with the help of the AI Dashboard."
-			items={AiDashboardItems}
-			onComplete={handleStepComplete}
-			{username}
-		/>
-	{:else if step === 3}
 		<PostAnalysisContainer
-			postIds={postIds.slice(0, 3)}
-			onComplete={handleStepComplete}
-			showAssistant={false}
-			{username}
-		/>
-	{:else if step === 4}
-		<SurveyQuestions onComplete={handleStepComplete} {username} />
-	{:else if step === 5}
-		<MainIntro
-			title="Main Experiment"
-			description="You will now assess the last three posts with the help of the AI Assistant."
-			items={AiAssistantItems}
-			onComplete={handleStepComplete}
-			{username}
-		/>
-	{:else if step === 6}
-		<PostAnalysisContainer
-			postIds={postIds.slice(3, 6)}
+			postIds={[18]}
 			onComplete={handleStepComplete}
 			showAssistant={true}
 			{username}
 		/>
-	{:else if step === 7}
-		<SurveyQuestions onComplete={handleStepComplete} {username} />
-	{:else if step === 8}
+	{:else if step === 2}
+		<PostAnalysisContainer
+			postIds={[26]}
+			onComplete={handleStepComplete}
+			showAssistant={true}
+			{username}
+		/>
+	{:else}
 		<MainCompletion onComplete={handleStudyComplete}/>
 	{/if}
 </div>

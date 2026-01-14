@@ -9,17 +9,12 @@
 	import DataVisualizationGrid from './DataVisualizationGrid.svelte';
 	interface Props {
 		post: SocialMediaPostData;
-		postId: number;	
+		postId: number;
 		showAssistant?: boolean;
 		username?: string;
 	}
 
-	let {
-		post,
-		postId,
-		showAssistant = false,
-		username,
-	}: Props = $props();
+	let { post, postId, showAssistant = false, username }: Props = $props();
 
 	// State for showing visualizations
 	let evaluationData = $state<EvaluationData | null>(null);
@@ -37,8 +32,8 @@
 			loading = true;
 			error = null;
 			console.log('Loading analysis data for postId:', postId);
-			
-			evaluationData = await getEvaluationDataById(postId) || null;
+
+			evaluationData = (await getEvaluationDataById(postId)) || null;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to load analysis data';
 			console.error('Error loading analysis data:', err);
@@ -56,9 +51,9 @@
 	});
 </script>
 
-<div class="max-w-7xl mx-auto space-y-6">
+<div class="mx-auto max-w-7xl space-y-6">
 	<!-- Main Content Row -->
-	<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+	<div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 		<!-- Social Media Post -->
 		<div class="space-y-4">
 			<h2 class="text-lg font-semibold text-gray-900">Social Media Post</h2>
@@ -83,7 +78,9 @@
 				<div class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
 					<div class="text-gray-500">
 						<div class="mb-4">
-							<div class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+							<div
+								class="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"
+							></div>
 						</div>
 						<p class="text-sm">Loading analysis data...</p>
 					</div>
@@ -97,13 +94,19 @@
 				</div>
 			{:else if evaluationData}
 				{#if showAssistant}
-				<EvaluationAssistant
+					<EvaluationAssistant
 						modelPrediction={!post.isFakeNews as boolean}
-						evaluationData={evaluationData}
-						username={username}
+						features={post.features}
+						{evaluationData}
+						{username}
 					/>
 				{:else}
-					<DataVisualizationGrid visualizations={evaluationData.visualizations.visualizations} modelPrediction={!post.isFakeNews as boolean} username={username}/>
+					<DataVisualizationGrid
+						visualizations={evaluationData.visualizations.visualizations}
+						modelPrediction={!post.isFakeNews as boolean}
+						features={post.features}
+						{username}
+					/>
 				{/if}
 			{:else}
 				<div class="rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
