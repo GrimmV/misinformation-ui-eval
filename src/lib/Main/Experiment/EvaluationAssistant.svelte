@@ -99,7 +99,7 @@
 		<div class="mb-3 flex items-center justify-between">
 			<div class="flex items-center space-x-2">
 				<TrustIcon class="h-5 w-5 text-{trustColor}-600" />
-				<h4 class="font-medium text-gray-900">Trust Assessment</h4>
+				<h4 class="font-medium text-gray-900">Trust Assessment - How trustworthy is the AI flag</h4>
 			</div>
 		</div>
 
