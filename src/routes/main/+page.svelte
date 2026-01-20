@@ -111,7 +111,7 @@
 <div class="min-h-screen bg-gray-100 pt-4">
 	{#if step === 1}
 		<PostAnalysisContainer
-			postIds={[34]}
+			postIds={[68]}
 			onComplete={handleStepComplete}
 			showAssistant={true}
 			{username}
