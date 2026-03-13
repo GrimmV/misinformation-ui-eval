@@ -1,6 +1,6 @@
 export default function uploadClicks(click: any) {
 
-    const serverAddress = "https://xai-limited-choice-default-rtdb.europe-west1.firebasedatabase.app/eval-1/";
+    const serverAddress = import.meta.env.PUBLIC_FIREBASE_DATABASE_URL;
 
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
