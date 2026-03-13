@@ -1,6 +1,6 @@
-export default function uploadClicks(click: any) {
+import { PUBLIC_FIREBASE_DATABASE_URL } from '$env/static/public';
 
-    const serverAddress = "https://xai-limited-choice-default-rtdb.europe-west1.firebasedatabase.app/eval-1/";
+export default function uploadClicks(click: any) {
 
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -18,7 +18,7 @@ export default function uploadClicks(click: any) {
         redirect: 'follow'
     };
 
-    return fetch(serverAddress + click.username + ".json", requestOptions)
+    return fetch(PUBLIC_FIREBASE_DATABASE_URL + click.username + ".json", requestOptions)
     .then(response => response.json())
     .catch(error => console.log('error', error));
 }
