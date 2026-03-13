@@ -23,7 +23,7 @@ git checkout qualitative-study # for qualitative study
 
 **⚠️ This frontend requires the corresponding backend to be deployed and accessible.** The application fetches posts, evaluation data, and AI chat responses from Flask endpoints. Without the backend running, most features will not work.
 
-- **Backend repository**: [backend-repository-url-placeholder](backend-repository-url-placeholder)
+- **Backend repository**: [https://github.com/GrimmV/misinformation-study-backend](https://github.com/GrimmV/misinformation-study-backend)
 - **Node.js** (v18 or later recommended)
 - **npm**
 
